@@ -51,9 +51,14 @@ if (!appSource.includes('async function requireAdminSession()')) {
 if (!appSource.includes("'/admin/products':adminProducts")) {
   throw new Error('/admin/products must render the admin products page.');
 }
-const vercelConfig = fs.readFileSync('vercel.json', 'utf8');
+const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
+const rewrites = Array.isArray(vercelConfig.rewrites) ? vercelConfig.rewrites : [];
+const catchesAdminRoute = (route) => rewrites.some((rewrite) =>
+  rewrite.destination === '/index.html' &&
+  (rewrite.source === route || rewrite.source === '/admin/(.*)' || rewrite.source === '/admin/:path*')
+);
 for (const route of ['/admin/products', '/admin/settings', '/admin/orders']) {
-  if (!vercelConfig.includes(`"source": "${route}"`)) {
+  if (!catchesAdminRoute(route)) {
     throw new Error(`Vercel rewrite fallback missing for ${route}.`);
   }
 }
