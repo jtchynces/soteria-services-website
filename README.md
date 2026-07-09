@@ -35,13 +35,13 @@ npm run build
 
 The build validates required launch files, JavaScript syntax, Stripe dependencies, Supabase dependencies, and generates the `dist` folder for Vercel.
 
-## Test Stripe Checkout
+## Verify Stripe Checkout
 
-1. Use Stripe test mode keys.
+1. Use Stripe sandbox mode keys.
 2. Set `STRIPE_SECRET_KEY` and `SITE_URL`.
 3. Run `npm run dev`.
 4. Click a Buy Now or Pay Deposit button.
-5. Use Stripe test card `4242 4242 4242 4242` with any future expiry, CVC, and postal code.
+5. Use Stripe sandbox card `4242 4242 4242 4242` with any future expiry, CVC, and postal code.
 6. Confirm the success return at `/checkout/success?session_id=...`.
 
 ## Webhook setup
@@ -65,12 +65,12 @@ Current storage note: webhook events are normalized for future Soteria Pulse syn
 
 ## Supabase authentication
 
-Admin and editor login uses Supabase Auth email/password. There are no hardcoded users or demo passwords in the website. Roles live in the Supabase `profiles` table linked to `auth.users`.
+Admin and editor login uses Supabase Auth email/password. There are no hardcoded users or shared credentials in the website. Roles live in the Supabase `profiles` table linked to `auth.users`.
 
 1. Create a Supabase project.
 2. Paste and run `supabase/migrations/001_auth_profiles_roles.sql` in the Supabase SQL editor.
 3. In Supabase Authentication, create Joshua's first user account with his real email and a temporary secure password.
-4. Run this SQL, replacing the email placeholder:
+4. Run this SQL, replacing the email value:
 
 ```sql
 update public.profiles
@@ -99,4 +99,4 @@ Product records include `tax_behavior`: `taxable`, `non_taxable`, or `confirm_ma
 2. Import into Vercel.
 3. Add the required environment variables.
 4. Configure the Stripe webhook URL after deployment.
-5. Run a Stripe test-mode checkout before switching to live keys.
+5. Run a Stripe sandbox checkout before switching to live keys.
