@@ -12,11 +12,13 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 SITE_URL=http://localhost:3000
 SUPABASE_URL=
+VITE_SUPABASE_URL=
 SUPABASE_ANON_KEY=
+VITE_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` must stay server-side. They are never exposed in client code. The browser only receives the Supabase URL and anon key through `/api/auth-config`.
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` must stay server-side. They are never exposed in client code. The browser receives only the Supabase URL and anon key through `/api/auth-config`. Product and settings saves use `SUPABASE_SERVICE_ROLE_KEY` when it is available, and otherwise use the configured Supabase URL/anon key with the logged-in user's Supabase access token and RLS policies.
 
 ## Run locally
 
