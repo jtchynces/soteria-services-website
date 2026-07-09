@@ -42,6 +42,12 @@ if (appSource.includes('action="/admin/products"')) {
 if (!appSource.includes("fetch('/api/admin/products'")) {
   throw new Error('Product saves must use the /api/admin/products endpoint.');
 }
+if (!appSource.includes("'Authorization':'Bearer '+activeSession.access_token")) {
+  throw new Error('Product admin requests must include the active Supabase access token.');
+}
+if (!appSource.includes('async function requireAdminSession()')) {
+  throw new Error('Admin product UI must validate the current Supabase session before saving.');
+}
 if (!appSource.includes("'/admin/products':adminProducts")) {
   throw new Error('/admin/products must render the admin products page.');
 }
