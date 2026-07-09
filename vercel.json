@@ -11,6 +11,22 @@
       "destination": "/index.html"
     },
     {
+      "source": "/admin/products",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/settings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/orders",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/invite",
+      "destination": "/index.html"
+    },
+    {
       "source": "/admin/(.*)",
       "destination": "/index.html"
     },

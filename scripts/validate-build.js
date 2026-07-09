@@ -42,6 +42,15 @@ if (appSource.includes('action="/admin/products"')) {
 if (!appSource.includes("fetch('/api/admin/products'")) {
   throw new Error('Product saves must use the /api/admin/products endpoint.');
 }
+if (!appSource.includes("'/admin/products':adminProducts")) {
+  throw new Error('/admin/products must render the admin products page.');
+}
+const vercelConfig = fs.readFileSync('vercel.json', 'utf8');
+for (const route of ['/admin/products', '/admin/settings', '/admin/orders']) {
+  if (!vercelConfig.includes(`"source": "${route}"`)) {
+    throw new Error(`Vercel rewrite fallback missing for ${route}.`);
+  }
+}
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 if (!pkg.dependencies || !pkg.dependencies.stripe) throw new Error('Stripe package dependency is missing');
 if (!pkg.dependencies['@supabase/supabase-js']) throw new Error('Supabase package dependency is missing');
