@@ -35,6 +35,13 @@ for (const file of required) {
 for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/create-checkout-session.js','api/stripe-webhook.js','api/quote-request.js','api/products.js','lib/auth.js','api/auth-config.js','api/invite-user.js','api/admin/site-settings.js','api/admin/products.js','api/admin/products/archive.js','api/admin/orders.js','lib/content.js']) {
   new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });
 }
+const appSource = fs.readFileSync('app.js', 'utf8');
+if (appSource.includes('action="/admin/products"')) {
+  throw new Error('Admin products page route must not be used as a product save endpoint.');
+}
+if (!appSource.includes("fetch('/api/admin/products'")) {
+  throw new Error('Product saves must use the /api/admin/products endpoint.');
+}
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 if (!pkg.dependencies || !pkg.dependencies.stripe) throw new Error('Stripe package dependency is missing');
 if (!pkg.dependencies['@supabase/supabase-js']) throw new Error('Supabase package dependency is missing');
