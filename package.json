@@ -18,6 +18,7 @@
   "author": "Soteria Services",
   "license": "UNLICENSED",
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.1",
     "stripe": "^22.3.0"
   }
 }

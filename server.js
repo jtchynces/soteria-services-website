@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { handleApi } = require('./lib/commerce');
+const { handleAuthApi } = require('./lib/auth');
 
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
@@ -34,6 +35,8 @@ const mimeTypes = {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   if (url.pathname.startsWith('/api/')) {
+    const authHandled = await handleAuthApi(req, res, url.pathname);
+    if (authHandled !== false) return;
     const handled = await handleApi(req, res, url.pathname);
     if (handled !== false) return;
   }

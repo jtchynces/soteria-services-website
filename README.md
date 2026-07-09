@@ -1,6 +1,6 @@
 # Soteria Services Marketing Website v1.1.0 - Stripe Commerce Launch
 
-Launch-focused marketing website with Stripe Checkout support for Buy Now and Deposit Only products, quote request workflows, and protected admin/editor pages.
+Launch-focused marketing website with Stripe Checkout support, quote request workflows, and Supabase-protected admin/editor pages.
 
 ## Required environment variables
 
@@ -11,9 +11,12 @@ VITE_STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 SITE_URL=http://localhost:3000
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-`STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` must stay server-side. They are never exposed in client code.
+`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` must stay server-side. They are never exposed in client code. The browser only receives the Supabase URL and anon key through `/api/auth-config`.
 
 ## Run locally
 
@@ -30,7 +33,7 @@ Open `http://localhost:3000`.
 npm run build
 ```
 
-The build validates required launch files and JavaScript syntax.
+The build validates required launch files, JavaScript syntax, Stripe dependencies, Supabase dependencies, and generates the `dist` folder for Vercel.
 
 ## Test Stripe Checkout
 
@@ -60,11 +63,31 @@ Set the webhook signing secret as `STRIPE_WEBHOOK_SECRET`.
 
 Current storage note: webhook events are normalized for future Soteria Pulse sync, but persistent database storage is not connected yet. Connect Supabase or another database before relying on webhook state as the system of record.
 
+## Supabase authentication
+
+Admin and editor login uses Supabase Auth email/password. There are no hardcoded users or demo passwords in the website. Roles live in the Supabase `profiles` table linked to `auth.users`.
+
+1. Create a Supabase project.
+2. Paste and run `supabase/migrations/001_auth_profiles_roles.sql` in the Supabase SQL editor.
+3. In Supabase Authentication, create Joshua's first user account with his real email and a temporary secure password.
+4. Run this SQL, replacing the email placeholder:
+
+```sql
+update public.profiles
+set full_name = 'Joshua Chynces', role = 'administrator'
+where lower(email) = lower('JOSHUA_EMAIL_HERE');
+```
+
+5. Add Supabase environment variables locally and in Vercel.
+6. Joshua can log in at `/admin`, use Invite User, and invite Shay as `editor`.
+
+Shay Taillefer should be assigned the editor role. Editors can manage public products, services, pricing, inventory, and content. Editors cannot access payment/security settings, billing settings, admin user management, or user deletion.
+
+The Forgot Password action uses Supabase Auth password reset email. Configure the production site URL and email templates in Supabase before launch.
+
 ## Product admin
 
-Joshua Chynces is configured as administrator. Shaylee Taillefer is configured as editor. The static admin uses hashed password checks and local browser storage for launch editing. Replace with backend authentication before storing sensitive settings.
-
-Editors can manage public products/content. Editors cannot access payment keys, security settings, billing settings, or admin user management.
+Product and order edits are still stored locally until persistent product/order storage is connected. Supabase Auth protects access to the admin screens now; the next backend step is moving products, orders, and content into Supabase tables.
 
 ## Tax note
 
