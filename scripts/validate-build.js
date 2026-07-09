@@ -22,7 +22,8 @@ const required = [
   'api/auth-config.js',
   'api/invite-user.js',
   'supabase/migrations/001_auth_profiles_roles.sql',
-  'supabase/migrations/002_prelaunch_content_storage.sql'
+  'supabase/migrations/002_prelaunch_content_storage.sql',
+  'supabase/migrations/003_storage_image_uploads.sql'
 ];
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error('Missing required launch file: ' + file);
@@ -34,3 +35,4 @@ const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 if (!pkg.dependencies || !pkg.dependencies.stripe) throw new Error('Stripe package dependency is missing');
 if (!pkg.dependencies['@supabase/supabase-js']) throw new Error('Supabase package dependency is missing');
 console.log('Launch build validation passed.');
+
