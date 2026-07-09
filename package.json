@@ -1,0 +1,23 @@
+{
+  "name": "soteria-services-ecommerce",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Launch-ready Soteria Services marketing website.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node scripts/validate-build.js"
+  },
+  "keywords": [
+    "soteria",
+    "aed",
+    "first-aid",
+    "ecommerce",
+    "vercel"
+  ],
+  "author": "Soteria Services",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "stripe": "^22.3.0"
+  }
+}
