@@ -16,6 +16,7 @@ VITE_SUPABASE_URL=
 SUPABASE_ANON_KEY=
 VITE_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+ENABLE_DEMO_CONTENT=false
 ```
 
 `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY` must stay server-side. They are never exposed in client code. The browser receives only the Supabase URL and anon key through `/api/auth-config`. Product and settings saves use `SUPABASE_SERVICE_ROLE_KEY` when it is available, and otherwise use the configured Supabase URL/anon key with the logged-in user's Supabase access token and RLS policies.
@@ -67,7 +68,7 @@ Webhook events are normalized for Soteria Pulse sync and written to Supabase ord
 
 ## Pre-launch mode
 
-Set `PUBLIC_SITE_MODE=coming_soon` to show the public launch screen while admin routes remain available. Set `PUBLIC_SITE_MODE=live` to show the full public website. The same value can also be stored in the `site_settings` table as `public_site_mode`; the environment value takes priority when present.
+Store `public_site_mode=coming_soon` in the Supabase `site_settings` table to show the public launch screen while admin routes remain available. Set it to `live` to show the full public website. `PUBLIC_SITE_MODE` is only a local fallback when Supabase content storage is not configured.
 
 Public pre-launch mode keeps product and service pages hidden from visitors while allowing quote requests and protected admin access.
 
@@ -97,6 +98,8 @@ The Forgot Password action uses Supabase Auth password reset email. Configure th
 ## Product admin
 
 Product edits, quote requests, orders, media records, services, and site settings are stored in Supabase tables when Supabase environment variables are configured. This preserves Shay's updates across deployments, browsers, devices, and future code updates.
+
+Supabase is the production source of truth. Starter products and starter settings are not used when Supabase content storage is configured, even if a table is empty. Seed rows are guarded so they only populate a brand-new empty table and never overwrite existing records. Set `ENABLE_DEMO_CONTENT=true` only for an intentional local demo without Supabase content.
 
 ## Tax note
 

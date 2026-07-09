@@ -88,7 +88,8 @@ create table if not exists public.admin_profiles (
 );
 
 insert into public.site_settings (key, value)
-values
+select key, value
+from (values
   ('public_site_mode', 'coming_soon'),
   ('company_name', 'Soteria Services'),
   ('company_email', 'info@soteriaservices.net'),
@@ -96,10 +97,13 @@ values
   ('company_logo_url', '/assets/soteria-logo.svg'),
   ('primary_cta_text', 'Request a Quote'),
   ('primary_cta_url', '/request-quote')
+) as seed(key, value)
+where not exists (select 1 from public.site_settings)
 on conflict (key) do nothing;
 
 insert into public.products (id, category, name, description, amount, currency, tax_behavior, inventory_status, image_url, mode, enabled)
-values
+select id, category, name, description, amount, currency, tax_behavior, inventory_status, image_url, mode, enabled
+from (values
   ('first-aid-training-seat', 'First Aid Training', 'First Aid / CPR Training Seat', 'Training registration payment for confirmed First Aid or CPR course seats.', 12500, 'cad', 'confirm_manually', 'available', '/assets/soteria-logo.svg', 'buy_now', true),
   ('aed-program-deposit', 'AED Sales', 'AED Program Deposit', 'Deposit toward an AED sales and program setup quote. Final scope is confirmed by Soteria Services.', 25000, 'cad', 'confirm_manually', 'quote_required', '/assets/soteria-logo.svg', 'deposit_only', true),
   ('workplace-first-aid-kit', 'First Aid Kits', 'Workplace First Aid Kit', 'Workplace first aid kit order. Product selection and availability are subject to confirmation.', 13900, 'cad', 'confirm_manually', 'available', '/assets/soteria-logo.svg', 'buy_now', true),
@@ -107,6 +111,8 @@ values
   ('event-medical-deposit', 'Event Medical Deposit', 'Event Medical Coverage Deposit', 'Deposit for event first aid or medical standby coverage. Soteria will confirm event details after payment.', 30000, 'cad', 'confirm_manually', 'scheduled_service', '/assets/soteria-logo.svg', 'deposit_only', true),
   ('readiness-assessment-deposit', 'Consulting / Readiness Assessment Deposit', 'Readiness Assessment Deposit', 'Deposit for emergency preparedness consulting or readiness assessment.', 25000, 'cad', 'confirm_manually', 'scheduled_service', '/assets/soteria-logo.svg', 'deposit_only', true),
   ('soteria-pulse-discovery', 'Soteria Pulse Inquiry', 'Soteria Pulse Discovery Call', 'Request a Soteria Pulse discovery call. No payment required.', 0, 'cad', 'non_taxable', 'inquiry_only', '/assets/soteria-logo.svg', 'inquiry_only', true)
+) as seed(id, category, name, description, amount, currency, tax_behavior, inventory_status, image_url, mode, enabled)
+where not exists (select 1 from public.products)
 on conflict (id) do nothing;
 
 create or replace function public.touch_content_updated_at()
