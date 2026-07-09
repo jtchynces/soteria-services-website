@@ -91,7 +91,7 @@ insert into public.site_settings (key, value)
 values
   ('public_site_mode', 'coming_soon'),
   ('company_name', 'Soteria Services'),
-  ('company_email', 'info@soteriaservices.ca'),
+  ('company_email', 'info@soteriaservices.net'),
   ('company_phone', ''),
   ('company_logo_url', '/assets/soteria-logo.svg'),
   ('primary_cta_text', 'Request a Quote'),

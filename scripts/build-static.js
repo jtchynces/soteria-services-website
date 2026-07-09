@@ -36,4 +36,32 @@ function copyDir(source, target) {
 
 copyDir(path.join(root, 'assets'), path.join(dist, 'assets'));
 
+const appRoutes = [
+  'admin',
+  'admin/products',
+  'admin/orders',
+  'admin/settings',
+  'admin/invite',
+  'products',
+  'checkout/success',
+  'checkout/cancel',
+  'request-quote',
+  'first-aid-training',
+  'aed-sales-programs',
+  'event-medical-services',
+  'mask-fit-testing',
+  'soteria-pulse',
+  'why-soteria',
+  'contact',
+  'privacy-policy',
+  'terms-of-use',
+  'accessibility-statement'
+];
+
+for (const route of appRoutes) {
+  const target = path.join(dist, route);
+  fs.mkdirSync(target, { recursive: true });
+  fs.copyFileSync(path.join(root, 'index.html'), path.join(target, 'index.html'));
+}
+
 console.log('Static site built to dist.');
