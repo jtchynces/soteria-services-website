@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { handleApi } = require('./lib/commerce');
 const { handleAuthApi } = require('./lib/auth');
+const { handleContentApi } = require('./lib/content');
 
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
@@ -37,6 +38,8 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname.startsWith('/api/')) {
     const authHandled = await handleAuthApi(req, res, url.pathname);
     if (authHandled !== false) return;
+    const contentHandled = await handleContentApi(req, res, url.pathname);
+    if (contentHandled !== false) return;
     const handled = await handleApi(req, res, url.pathname);
     if (handled !== false) return;
   }

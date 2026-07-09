@@ -61,7 +61,13 @@ Subscribe to:
 
 Set the webhook signing secret as `STRIPE_WEBHOOK_SECRET`.
 
-Current storage note: webhook events are normalized for future Soteria Pulse sync, but persistent database storage is not connected yet. Connect Supabase or another database before relying on webhook state as the system of record.
+Webhook events are normalized for Soteria Pulse sync and written to Supabase order storage when Supabase environment variables are configured.
+
+## Pre-launch mode
+
+Set `PUBLIC_SITE_MODE=coming_soon` to show the public launch screen while admin routes remain available. Set `PUBLIC_SITE_MODE=live` to show the full public website. The same value can also be stored in the `site_settings` table as `public_site_mode`; the environment value takes priority when present.
+
+Public pre-launch mode keeps product and service pages hidden from visitors while allowing quote requests and protected admin access.
 
 ## Supabase authentication
 
@@ -69,8 +75,9 @@ Admin and editor login uses Supabase Auth email/password. There are no hardcoded
 
 1. Create a Supabase project.
 2. Paste and run `supabase/migrations/001_auth_profiles_roles.sql` in the Supabase SQL editor.
-3. In Supabase Authentication, create Joshua's first user account with his real email and a temporary secure password.
-4. Run this SQL, replacing the email value:
+3. Paste and run `supabase/migrations/002_prelaunch_content_storage.sql` in the Supabase SQL editor.
+4. In Supabase Authentication, create Joshua's first user account with his real email and a temporary secure password.
+5. Run this SQL, replacing the email value:
 
 ```sql
 update public.profiles
@@ -78,8 +85,8 @@ set full_name = 'Joshua Chynces', role = 'administrator'
 where lower(email) = lower('JOSHUA_EMAIL_HERE');
 ```
 
-5. Add Supabase environment variables locally and in Vercel.
-6. Joshua can log in at `/admin`, use Invite User, and invite Shay as `editor`.
+6. Add Supabase environment variables locally and in Vercel.
+7. Joshua can log in at `/admin`, use Invite User, and invite Shay as `editor`.
 
 Shay Taillefer should be assigned the editor role. Editors can manage public products, services, pricing, inventory, and content. Editors cannot access payment/security settings, billing settings, admin user management, or user deletion.
 
@@ -87,7 +94,7 @@ The Forgot Password action uses Supabase Auth password reset email. Configure th
 
 ## Product admin
 
-Product and order edits are still stored locally until persistent product/order storage is connected. Supabase Auth protects access to the admin screens now; the next backend step is moving products, orders, and content into Supabase tables.
+Product edits, quote requests, orders, media records, services, and site settings are stored in Supabase tables when Supabase environment variables are configured. This preserves Shay's updates across deployments, browsers, devices, and future code updates.
 
 ## Tax note
 
