@@ -40,14 +40,12 @@ The build validates required launch files, JavaScript syntax, Stripe dependencie
 
 ## Verify Stripe Checkout
 
-1. Use Stripe test mode keys: `STRIPE_SECRET_KEY=sk_test_...` and `VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...`.
-2. Set `STRIPE_SECRET_KEY`, `VITE_STRIPE_PUBLISHABLE_KEY`, and `SITE_URL`.
+1. Use Stripe sandbox mode keys.
+2. Set `STRIPE_SECRET_KEY` and `SITE_URL`.
 3. Run `npm run dev`.
 4. Click a Buy Now or Pay Deposit button.
 5. Use Stripe sandbox card `4242 4242 4242 4242` with any future expiry, CVC, and postal code.
 6. Confirm the success return at `/checkout/success?session_id=...`.
-
-Admin pages show the current Stripe status as Test Mode, Live Mode, Not Configured, or Key Mode Mismatch. Do not switch to `sk_live_...` / `pk_live_...` keys until test checkout has been verified.
 
 ## Webhook setup
 
