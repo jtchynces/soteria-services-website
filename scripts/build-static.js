@@ -39,6 +39,7 @@ copyDir(path.join(root, 'assets'), path.join(dist, 'assets'));
 const appRoutes = [
   'admin',
   'admin/products',
+  'admin/content',
   'admin/orders',
   'admin/settings',
   'admin/invite',
