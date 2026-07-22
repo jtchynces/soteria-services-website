@@ -42,6 +42,12 @@ const server = http.createServer(async (req, res) => {
     if (contentHandled !== false) return;
     const handled = await handleApi(req, res, url.pathname);
     if (handled !== false) return;
+    res.writeHead(404, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store, max-age=0'
+    });
+    res.end(JSON.stringify({ error: 'API route not found', path: url.pathname }));
+    return;
   }
 
   const safeUrl = decodeURIComponent(url.pathname).replace(/^\/+/, '');

@@ -15,7 +15,7 @@ const required = [
   'lib/commerce.js',
   'lib/auth.js',
   'lib/content.js',
-  'api/[...path].js',
+  'api/index.js',
   'supabase/migrations/001_auth_profiles_roles.sql',
   'supabase/migrations/002_prelaunch_content_storage.sql',
   'supabase/migrations/003_storage_image_uploads.sql'
@@ -23,8 +23,12 @@ const required = [
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error('Missing required launch file: ' + file);
 }
-for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/[...path].js','lib/auth.js','lib/content.js']) {
+for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/index.js','lib/auth.js','lib/content.js']) {
   new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });
+}
+const apiSource = fs.readFileSync('api/index.js', 'utf8');
+for (const route of ['/api/auth-config','/api/invite-user','/api/site-settings','/api/content','/api/products','/api/admin/products','/api/admin/products/archive','/api/admin/content','/api/admin/site-settings','/api/admin/orders','/api/create-checkout-session','/api/stripe-webhook','/api/quote-request']) {
+  if (!apiSource.includes(route)) throw new Error(`API dispatcher missing route ${route}.`);
 }
 const appSource = fs.readFileSync('app.js', 'utf8');
 if (appSource.includes('action="/admin/products"')) {
@@ -47,6 +51,9 @@ if (!appSource.includes("'/admin/content':adminContent")) {
 }
 const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
 const rewrites = Array.isArray(vercelConfig.rewrites) ? vercelConfig.rewrites : [];
+if (!rewrites.some((rewrite) => rewrite.source === '/api/(.*)' && rewrite.destination === '/api?path=$1')) {
+  throw new Error('Vercel API rewrite must route all API paths through api/index.js.');
+}
 const catchesAdminRoute = (route) => rewrites.some((rewrite) =>
   rewrite.destination === '/index.html' &&
   (rewrite.source === route || rewrite.source === '/admin/(.*)' || rewrite.source === '/admin/:path*')
