@@ -39,6 +39,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/aed-configurator",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/cart",
+      "destination": "/index.html"
+    },
+    {
       "source": "/checkout/(.*)",
       "destination": "/index.html"
     },

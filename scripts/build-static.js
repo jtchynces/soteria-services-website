@@ -35,6 +35,7 @@ function copyDir(source, target) {
 }
 
 copyDir(path.join(root, 'assets'), path.join(dist, 'assets'));
+copyDir(path.join(root, 'config'), path.join(dist, 'config'));
 
 const appRoutes = [
   'admin',
@@ -49,6 +50,8 @@ const appRoutes = [
   'request-quote',
   'first-aid-training',
   'aed-sales-programs',
+  'aed-configurator',
+  'cart',
   'event-medical-services',
   'mask-fit-testing',
   'soteria-pulse',

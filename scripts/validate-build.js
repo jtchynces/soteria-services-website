@@ -10,6 +10,7 @@ const required = [
   '.env.example',
   'assets/soteria-logo.svg',
   'assets/favicon.svg',
+  'config/aed-configurator.json',
   'lib/products.js',
   'lib/pulse.js',
   'lib/commerce.js',
@@ -48,6 +49,12 @@ if (!appSource.includes("'/admin/products':adminProducts")) {
 }
 if (!appSource.includes("'/admin/content':adminContent")) {
   throw new Error('/admin/content must render the admin content page.');
+}
+if (!appSource.includes("'/aed-configurator':aedConfigurator")) {
+  throw new Error('/aed-configurator must render the AED configurator.');
+}
+if (!appSource.includes('ProductProvider')) {
+  throw new Error('AED configurator must use a product provider abstraction.');
 }
 const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
 const rewrites = Array.isArray(vercelConfig.rewrites) ? vercelConfig.rewrites : [];

@@ -1,0 +1,38 @@
+{
+  "source": "configuration",
+  "inventoryEnabled": false,
+  "aeds": [
+    {
+      "id": "aed-zoll-aed-3",
+      "name": "ZOLL AED 3",
+      "description": "Professional AED with clear rescue prompts, CPR feedback, and workplace-ready durability.",
+      "price": 289500,
+      "availability": "Configured item - confirm before fulfillment",
+      "image": "/assets/soteria-logo.svg",
+      "detailsUrl": "/aed-sales-programs",
+      "enabled": true
+    },
+    {
+      "id": "aed-philips-onsite",
+      "name": "Philips HeartStart OnSite AED",
+      "description": "Compact AED option for offices, community spaces, and public access programs.",
+      "price": 219500,
+      "availability": "Configured item - confirm before fulfillment",
+      "image": "/assets/soteria-logo.svg",
+      "detailsUrl": "/aed-sales-programs",
+      "enabled": true
+    }
+  ],
+  "accessories": [
+    { "id": "aed-indoor-cabinet", "name": "Indoor Cabinet", "description": "Wall-mounted indoor AED cabinet for visible storage.", "price": 28500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-outdoor-heated-cabinet", "name": "Outdoor/Heated Cabinet", "description": "Weather-conscious heated cabinet option for outdoor AED placement.", "price": 99500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-wall-sign", "name": "Wall Sign", "description": "AED wall sign to help people quickly identify the device location.", "price": 3500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-projecting-sign", "name": "Projecting Sign", "description": "Projecting AED sign for corridors and larger facilities.", "price": 5500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-adult-pads", "name": "Adult Pads", "description": "Replacement adult electrode pads for AED readiness.", "price": 9500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-pediatric-pads", "name": "Pediatric Pads", "description": "Pediatric electrode pads for child rescue preparedness.", "price": 12500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-spare-battery", "name": "Spare Battery", "description": "Spare AED battery to support readiness and lifecycle planning.", "price": 24500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-rescue-kit", "name": "Rescue Kit", "description": "Rescue kit with common response supplies for AED incidents.", "price": 3500, "image": "/assets/soteria-logo.svg", "quantity": true, "enabled": true },
+    { "id": "aed-inspection-service", "name": "Inspection/Service Package", "description": "Inspection and readiness support package for AED programs.", "price": 19500, "image": "/assets/soteria-logo.svg", "quantity": false, "enabled": true },
+    { "id": "aed-training", "name": "Training", "description": "Optional AED orientation or training support for your team.", "price": 0, "image": "/assets/soteria-logo.svg", "quantity": false, "enabled": true }
+  ]
+}

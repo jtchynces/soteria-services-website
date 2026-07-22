@@ -101,6 +101,10 @@ Product edits, quote requests, orders, media records, services, and site setting
 
 Supabase is the production source of truth. Starter products and starter settings are not used when Supabase content storage is configured, even if a table is empty. Seed rows are guarded so they only populate a brand-new empty table and never overwrite existing records. Set `ENABLE_DEMO_CONTENT=true` only for an intentional local demo without Supabase content.
 
+## AED configurator
+
+The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Update that file to add AED models, accessories, prices, descriptions, images, availability, or enabled/disabled status. The frontend uses a `ProductProvider` abstraction, so `inventoryEnabled` can later switch the same interface to product records without redesigning the configurator.
+
 ## Tax note
 
 Product records include `tax_behavior`: `taxable`, `non_taxable`, or `confirm_manually`. Stripe Tax is not enabled automatically. Tax handling should be reviewed before full e-commerce launch.
