@@ -19,6 +19,7 @@ const required = [
   'api/stripe-webhook.js',
   'api/quote-request.js',
   'api/products.js',
+  'api/site-settings.js',
   'api/auth-config.js',
   'api/invite-user.js',
   'api/admin/site-settings.js',
@@ -34,7 +35,7 @@ const required = [
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error('Missing required launch file: ' + file);
 }
-for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/create-checkout-session.js','api/stripe-webhook.js','api/quote-request.js','api/products.js','api/content.js','lib/auth.js','api/auth-config.js','api/invite-user.js','api/admin/site-settings.js','api/admin/content.js','api/admin/products.js','api/admin/products/archive.js','api/admin/orders.js','lib/content.js']) {
+for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/create-checkout-session.js','api/stripe-webhook.js','api/quote-request.js','api/products.js','api/site-settings.js','api/content.js','lib/auth.js','api/auth-config.js','api/invite-user.js','api/admin/site-settings.js','api/admin/content.js','api/admin/products.js','api/admin/products/archive.js','api/admin/orders.js','lib/content.js']) {
   new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });
 }
 const appSource = fs.readFileSync('app.js', 'utf8');
