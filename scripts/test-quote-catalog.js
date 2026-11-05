@@ -32,6 +32,6 @@ assert.match(unverified, /Price on request/);
 assert.doesNotMatch(unverified, /data-cart-add|data-checkout|\$2000\.00/);
 const buyHtml = context.renderCard({ ...quoteProduct, amount: 200000, mode: 'buy_now', price_verified:true, checkout_verified:true });
 assert.match(buyHtml, /\$2000\.00/);
-assert.match(buyHtml, /data-cart-add/);
+assert.match(buyHtml, /data-quote-add/);
 assert.match(context.renderCard({ ...quoteProduct, image:'https://valid.test/image.png' }), /https:\/\/valid\.test\/image\.png/);
 console.log('Quote catalog rendering checks passed.');

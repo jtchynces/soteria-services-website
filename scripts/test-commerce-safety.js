@@ -41,8 +41,8 @@ async function call(handler, body, headers = {}) {
   const disabled = await call(createCheckoutSession, { productId: 'a' });
   assert.equal(disabled.status, 503);
   const records = {
-    a: { id: 'a', name: 'AED', mode: 'buy_now', amount: 120000, currency: 'cad', tax_behavior: 'non_taxable', checkout_verified:true },
-    b: { id: 'b', name: 'Pads', mode: 'buy_now', amount: 8000, currency: 'cad', tax_behavior: 'non_taxable', checkout_verified:true }
+    a: { id: 'a', name: 'AED', mode: 'buy_now', amount: 120000, currency: 'cad', tax_behavior: 'non_taxable', checkout_verified:true, price_verified:true, fulfillment_verified:true, shipping_verified:true },
+    b: { id: 'b', name: 'Pads', mode: 'buy_now', amount: 8000, currency: 'cad', tax_behavior: 'non_taxable', checkout_verified:true, price_verified:true, fulfillment_verified:true, shipping_verified:true }
   };
   const lookup = async id => records[id];
   const cart = await resolveCheckoutItems([{ productId: 'a', quantity: 1, price: 1 }, { productId: 'b', quantity: 2, price: 1 }], lookup);
@@ -52,6 +52,10 @@ async function call(handler, body, headers = {}) {
   await assert.rejects(() => resolveCheckoutItems([{ productId: 'a', quantity: 1 }, { productId: 'a', quantity: 1 }], lookup));
   await assert.rejects(() => resolveCheckoutItems([{ productId: 'a', quantity: 1 }], async () => ({ ...records.a, tax_behavior: 'confirm_manually' })));
   await assert.rejects(() => resolveCheckoutItems([{ productId: 'a', quantity: 1 }], async () => ({ ...records.a, checkout_verified: false })), /verified before checkout/);
+  await assert.rejects(() => resolveCheckoutItems([{ productId: 'a', quantity: 1 }], async () => ({ ...records.a, shipping_verified: false })), /verified before checkout/);
+  const source = require('../lib/sos-quote-catalog');
+  const lookupVerified = async id => ({ ...source.find(item => item.id === id), mode:'buy_now', amount:1000, currency:'cad', tax_behavior:'non_taxable', checkout_verified:true, price_verified:true, fulfillment_verified:true, shipping_verified:true });
+  await assert.rejects(() => resolveCheckoutItems([{ productId:'sos-zoll-aed-3', quantity:1 }, { productId:'sos-lifeline-view-adult-pads', quantity:1 }], lookupVerified), /not verified as compatible/);
   const catalog = require('../config/aed-configurator.json');
   assert.ok([...catalog.aeds, ...catalog.accessories].every(item => !item.enabled));
   console.log('Commerce safety checks passed.');

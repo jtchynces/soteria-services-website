@@ -21,7 +21,7 @@ async function api(body) {
 const listeners = {}, storage = new Map(), badge = { textContent:'' }, messages = [];
 let renderCount = 0, fetched = 0, pendingRelease;
 const context = {
-  document:{ addEventListener(type, fn){ listeners[type]=fn; }, getElementById(id){ return id==='quote-cart-count' ? badge : null; } },
+  document:{ addEventListener(type, fn){ if (!listeners[type]) listeners[type]=[]; listeners[type].push(fn); }, getElementById(id){ return id==='quote-cart-count' ? badge : null; } },
   localStorage:{ getItem:key => storage.get(key) || null, setItem:(key, value) => storage.set(key, value) },
   products:() => catalog, AedCatalog,
   esc:value => String(value || '').replace(/[&<>"']/g, ''), hero:() => '',
@@ -40,7 +40,7 @@ const aed='sos-zoll-aed-3', battery='sos-zoll-aed-3-battery', pads='sos-lifeline
   assert.match(context.cart.renderPage(), /8000-000696/);
   assert.doesNotMatch(context.cart.renderPage(), /\$0\.00/);
   const beforeChange = renderCount;
-  listeners.change({ target:{ matches:selector => selector === '[data-quote-quantity]', dataset:{ quoteQuantity:'2' }, value:'3' } });
+  listeners.change[0]({ target:{ matches:selector => selector === '[data-quote-quantity]', dataset:{ quoteQuantity:'2' }, value:'3' } });
   assert.equal(context.cart.read().items[2].quantity, 3);
   assert.equal(badge.textContent, '6');
   assert.equal(renderCount, beforeChange, 'quantity changes must not reset contact fields');
@@ -51,8 +51,8 @@ const aed='sos-zoll-aed-3', battery='sos-zoll-aed-3-battery', pads='sos-lifeline
   const submitButton = { disabled:false, textContent:'' };
   const form = { id:'quote-cart-form', fields:{ name:'Customer', email:'customer@valid.ca', deliveryLocation:'Wallaceburg', message:'Please advise' }, querySelector:() => submitButton };
   const event = { target:form, preventDefault(){}, stopImmediatePropagation(){} };
-  const first = listeners.submit(event);
-  await listeners.submit(event);
+  const first = listeners.submit[0](event);
+  await listeners.submit[0](event);
   assert.equal(fetched, 1, 'a second click must not start a request');
   assert.equal(submitButton.disabled, true);
   pendingRelease(); await first;
@@ -71,7 +71,7 @@ const aed='sos-zoll-aed-3', battery='sos-zoll-aed-3-battery', pads='sos-lifeline
   assert.equal(saved.length, 1);
   context.cart.add([{ productId:kit, quantity:1 }]);
   const remove={ dataset:{ quoteRemove:'0' } };
-  listeners.click({ target:{ closest:selector => selector==='[data-quote-remove]' ? remove : null } });
+  listeners.click[0]({ target:{ closest:selector => selector==='[data-quote-remove]' ? remove : null } });
   assert.equal(context.cart.read().items.length, 0);
   console.log('Quote cart workflow and server validation checks passed.');
 })().catch(error => { console.error(error); process.exitCode=1; });
