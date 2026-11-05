@@ -1,0 +1,12 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const source = fs.readFileSync('app.js', 'utf8').split(/\r?\n/).find(line => line.startsWith('function hero('));
+assert.ok(source);
+const context = {};
+vm.createContext(context);
+vm.runInContext(source + '\nthis.renderHero = hero;', context);
+const html = context.renderHero('AED Sales & Programs', 'AEDs', 'Request a Quote');
+assert.equal((html.match(/Request a Quote/g) || []).length, 1);
+assert.match(context.renderHero('Home', 'Services', 'Contact Us'), /Contact Us/);
+console.log('Primary action checks passed.');

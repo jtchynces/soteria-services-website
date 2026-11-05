@@ -1,4 +1,26 @@
 const AedCatalog = (() => {
+  // Bindings require an exact catalog identity as well as a reviewed manufacturer model.
+  // No accessory bindings are present until its supplier part number is confirmed.
+  const bindings = Object.freeze({
+    'sos-zoll-aed-3': { name: 'ZOLL AED 3', model: 'ZOLL AED 3' },
+    'sos-zoll-aed-plus': { name: 'ZOLL AED Plus', model: 'ZOLL AED Plus' },
+    'sos-defibtech-lifeline': { name: 'Defibtech Lifeline AED', model: 'DDU-100' },
+    'sos-lifeline-view': { name: 'Defibtech Lifeline View AED', model: 'DDU-2300' }
+  });
+  const relationships = Object.freeze([
+    { device: 'ZOLL AED 3', part: '8000-000696', source: 'https://www.zoll.com/en-gb/products/accessories/by-product/aed-3' },
+    { device: 'ZOLL AED Plus', part: '8900-0800-01', source: 'https://www.zoll.com/en-gb/products/accessories/by-product/aed-plus' },
+    { device: 'DDU-100', part: 'DDP-100', source: 'https://www.defibtech.com/products/lifeline-aed/' },
+    { device: 'DDU-2300', part: 'DDP-2001', source: 'https://www.defibtech.com/products/lifeline-view-aed/' }
+  ]);
+  function binding(product, registry = bindings) {
+    const entry = product && registry[product.id];
+    return entry && entry.name === product.name ? entry : null;
+  }
+  function compatible(aed, accessory, registry = bindings) {
+    const device = binding(aed, registry), part = binding(accessory, registry);
+    return !!(device && part && relationships.some(item => item.device === device.model && item.part === part.model));
+  }
   const accessoryWords = /\b(pads?|electrodes?|batter(?:y|ies)|cabinets?|brackets?|signs?|cases?|kits?|accessor(?:y|ies))\b/i;
   const nonDeviceWords = /\b(trainers?|training|deposit|program|service|orientation)\b/i;
   function build(products) {
@@ -9,7 +31,7 @@ const AedCatalog = (() => {
       const isAccessory = accessoryWords.test(text);
       if (!isAccessory && (nonDeviceWords.test(text) || !/\baed\b/i.test(String(product.name || '')))) continue;
       const amount = Number(product.amount);
-      const price = product.mode === 'buy_now' && Number.isSafeInteger(amount) && amount > 0 ? amount : null;
+      const price = product.price_verified === true && product.mode === 'buy_now' && Number.isSafeInteger(amount) && amount > 0 ? amount : null;
       const item = { id: product.id, name: product.name || '', description: product.description || '', image: product.image || '', mode: product.mode, price, type: isAccessory ? 'accessory' : 'aed' };
       (isAccessory ? accessories : aeds).push(item);
     }
@@ -22,6 +44,6 @@ const AedCatalog = (() => {
   function summary(items) {
     return { knownSubtotal: items.reduce((total, item) => total + (item.price == null ? 0 : item.price * item.quantity), 0), needsQuote: !items.length || items.some(item => item.price == null) };
   }
-  return { build, quantity, summary };
+  return { build, quantity, summary, compatible, relationships };
 })();
 if (typeof module !== 'undefined') module.exports = AedCatalog;

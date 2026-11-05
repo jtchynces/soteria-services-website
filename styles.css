@@ -6,4 +6,4 @@
 @media(max-width:640px){.contact-card{width:min(90vw,420px);padding:24px}.contact-card p{font-size:16px}.contact-card a{font-size:17px}.contact-hero .actions .btn{width:100%}.configurator-grid{grid-template-columns:1fr!important}.summary-list p,.summary-total{align-items:flex-start;flex-direction:column}}
 @media(max-width:480px){.contact-card{width:90vw;padding:22px}.contact-card .contact-email{white-space:normal;overflow-wrap:normal;word-break:normal}}
 .hero:not(.contact-hero) .hero-inner{grid-template-columns:minmax(0,1fr);min-height:340px}.hero:not(.contact-hero) .hero-inner>div{max-width:850px}
-.image-unavailable{display:flex;align-items:center;justify-content:center;color:#52677f;font-size:14px}.configurator-card input[type=number]{max-width:90px}.configurator-section .field input[type=checkbox]{width:auto;min-height:0;margin-right:8px}
+.image-unavailable{display:flex;align-items:center;justify-content:center;color:#52677f;font-size:14px}.configurator-card input[type=number]{max-width:90px}.configurator-section .field input[type=checkbox]{width:auto;min-height:0;margin-right:8px}.configurator-card[hidden]{display:none}
