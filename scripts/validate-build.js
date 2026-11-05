@@ -4,6 +4,7 @@ const required = [
   'index.html',
   'styles.css',
   'app.js',
+  'expansion.js',
   'server.js',
   'robots.txt',
   'sitemap.xml',
@@ -24,7 +25,7 @@ const required = [
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error('Missing required launch file: ' + file);
 }
-for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/index.js','lib/auth.js','lib/content.js']) {
+for (const file of ['app.js','expansion.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/index.js','lib/auth.js','lib/content.js']) {
   new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });
 }
 const apiSource = fs.readFileSync('api/index.js', 'utf8');

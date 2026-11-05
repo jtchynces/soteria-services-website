@@ -105,7 +105,13 @@ Supabase is the production source of truth. Starter products and starter setting
 
 ## AED configurator
 
-The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Existing entries are disabled pending verification of products, prices, availability and authorization. Review those details before enabling an item. The current cart does not submit multiple items to Stripe; it is not ready for multi-item checkout. The inventory provider also needs further work before it can replace the configuration source completely.
+The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Existing entries are disabled pending verification of products, prices, availability and authorization. Review those details before enabling an item. Configurator entries must also exist as eligible Supabase products before they can be checked out. The inventory provider needs further work before it can replace the configuration source completely.
+
+The cart submits product IDs and quantities to the server, which resolves prices from the product catalog. Checkout currently permits only items explicitly marked `non_taxable`; items requiring tax calculation or manual confirmation must be quoted until tax is configured and reviewed. Shipping options, reliable order reconciliation and a real Stripe test transaction remain outstanding. Do not treat this branch as ready for production checkout.
+
+## Development checks
+
+Run `npm run build`, `node scripts/test-commerce-safety.js` and `node scripts/test-expansion.js`. For a local public preview without changing production settings, start with `PUBLIC_SITE_MODE=live` in an environment without production Supabase credentials. Public settings stored in a connected Supabase project take precedence.
 
 ## Tax note
 

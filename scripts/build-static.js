@@ -16,6 +16,7 @@ const files = [
   'index.html',
   'styles.css',
   'app.js',
+  'expansion.js',
   'robots.txt',
   'sitemap.xml'
 ];
@@ -49,6 +50,14 @@ const appRoutes = [
   'checkout/cancel',
   'request-quote',
   'first-aid-training',
+  'corporate-training',
+  'courses',
+  'shop-equipment',
+  'remote-medical-services',
+  'medical-coverage-request',
+  'emergency-management',
+  'health-safety',
+  'about',
   'aed-sales-programs',
   'aed-configurator',
   'cart',
