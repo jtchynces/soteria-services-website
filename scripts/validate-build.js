@@ -14,6 +14,7 @@ const required = [
   'assets/favicon.svg',
   'config/aed-configurator.json',
   'lib/products.js',
+  'lib/sos-quote-catalog.js',
   'lib/pulse.js',
   'lib/commerce.js',
   'lib/auth.js',
@@ -26,7 +27,7 @@ const required = [
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error('Missing required launch file: ' + file);
 }
-for (const file of ['app.js','expansion.js','supplier-admin.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','lib/supplier.js','api/index.js','lib/auth.js','lib/content.js']) {
+for (const file of ['app.js','expansion.js','supplier-admin.js','server.js','lib/products.js','lib/sos-quote-catalog.js','lib/pulse.js','lib/commerce.js','lib/supplier.js','api/index.js','lib/auth.js','lib/content.js']) {
   new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });
 }
 const apiSource = fs.readFileSync('api/index.js', 'utf8');
