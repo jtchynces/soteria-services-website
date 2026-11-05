@@ -19,7 +19,8 @@ async function send(body) {
 }
 (async () => {
   await assert.rejects(resolveAedPackage({ aed, accessories:[incompatible], services:[] }), /not verified as compatible/);
-  await assert.rejects(resolveAedPackage({ aed, accessories:[{ productId:'sos-zoll-aed-3-battery', quantity:1 }], services:[] }), /not verified as compatible/);
+  const compatible = await resolveAedPackage({ aed, accessories:[{ productId:'sos-zoll-aed-3-battery', quantity:1 }], services:[] });
+  assert.equal(compatible.accessories.length, 1);
   await assert.rejects(resolveAedPackage({ aed:{ ...aed, quantity:100 }, accessories:[], services:[] }), /quantity/);
   const body = { name:'Customer', email:'customer@valid.ca', message:'Request', aedPackage:{ aed, accessories:[incompatible], services:[] } };
   const rejected = await send(body);

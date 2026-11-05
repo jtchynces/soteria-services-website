@@ -19,6 +19,7 @@ const files = [
   'expansion.js',
   'supplier-admin.js',
   'aed-catalog.js',
+  'quote-cart.js',
   'robots.txt',
   'sitemap.xml'
 ];
@@ -65,6 +66,7 @@ const appRoutes = [
   'aed-sales-programs',
   'aed-configurator',
   'cart',
+  'quote-cart',
   'event-medical-services',
   'mask-fit-testing',
   'soteria-pulse',

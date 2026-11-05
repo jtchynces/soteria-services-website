@@ -7,3 +7,4 @@
 @media(max-width:480px){.contact-card{width:90vw;padding:22px}.contact-card .contact-email{white-space:normal;overflow-wrap:normal;word-break:normal}}
 .hero:not(.contact-hero) .hero-inner{grid-template-columns:minmax(0,1fr);min-height:340px}.hero:not(.contact-hero) .hero-inner>div{max-width:850px}
 .image-unavailable{display:flex;align-items:center;justify-content:center;color:#52677f;font-size:14px}.configurator-card input[type=number]{max-width:90px}.configurator-section .field input[type=checkbox]{width:auto;min-height:0;margin-right:8px}.configurator-card[hidden]{display:none}
+.quote-quantity{display:flex;align-items:center;gap:10px;margin:12px 0;font-weight:600}.quote-quantity input,[data-quote-quantity]{width:82px;max-width:100%}#aed-compat-notice:not(:empty){margin:12px 0;padding:12px;border-left:4px solid #a64c00;background:#fff4df;color:#492500}
