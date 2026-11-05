@@ -32,7 +32,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. Restart the server after updating the code.
+
+`npm run dev` starts a localhost-only preview that displays the full website even when the saved `public_site_mode` is `coming_soon`. The override exists only in the response from this local server; it never updates Supabase or changes Vercel's production API. Admin routes still require authentication and the existing checkout restrictions remain in force. If Supabase is not configured, the preview displays the quote-only SOS catalog; when Supabase is configured, its product records remain authoritative. The separate `npm start` command does not enable the bypass.
 
 ## Build
 
@@ -115,7 +117,7 @@ The cart submits product IDs and quantities to the server, which resolves prices
 
 ## Development checks
 
-Run `npm run build`, `node scripts/test-commerce-safety.js` and `node scripts/test-expansion.js`. For a local public preview without changing production settings, start with `PUBLIC_SITE_MODE=live` in an environment without production Supabase credentials. Public settings stored in a connected Supabase project take precedence.
+Run `npm run build`, `node scripts/test-local-preview.js`, `node scripts/test-commerce-safety.js` and `node scripts/test-expansion.js`. Local preview mode does not isolate a configured Supabase project: use development credentials when testing operations that write data, such as admin edits or quote submissions.
 
 ## Tax note
 

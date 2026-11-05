@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { handleApi } = require('./lib/commerce');
 const { handleAuthApi } = require('./lib/auth');
-const { handleContentApi } = require('./lib/content');
+const { handleContentApi, publicSettingsHandler, productsHandler } = require('./lib/content');
 const { supplierReviewsHandler } = require('./lib/supplier');
 
 const envPath = path.join(__dirname, '.env');
@@ -19,6 +19,7 @@ if (fs.existsSync(envPath)) {
 }
 
 const port = process.env.PORT || 3000;
+const localPreview = process.argv.includes('--local-preview');
 const root = __dirname;
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -37,6 +38,8 @@ const mimeTypes = {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   if (url.pathname.startsWith('/api/')) {
+    if (localPreview && url.pathname === '/api/site-settings') return publicSettingsHandler(req, res, { localPreview: true });
+    if (localPreview && url.pathname === '/api/products') return productsHandler(req, res, { localPreview: true });
     if (url.pathname === '/api/admin/supplier-reviews') return supplierReviewsHandler(req, res);
     const authHandled = await handleAuthApi(req, res, url.pathname);
     if (authHandled !== false) return;
@@ -73,6 +76,6 @@ const server = http.createServer(async (req, res) => {
   fs.createReadStream(filePath).pipe(res);
 });
 
-server.listen(port, () => {
-  console.log(`Soteria Services site running at http://localhost:${port}`);
+server.listen(port, localPreview ? '127.0.0.1' : undefined, () => {
+  console.log(`Soteria Services site running at http://localhost:${port}${localPreview ? ' (local preview)' : ''}`);
 });

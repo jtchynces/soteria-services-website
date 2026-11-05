@@ -4,7 +4,7 @@
   "private": true,
   "description": "Launch-ready Soteria Services marketing website.",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node server.js --local-preview",
     "start": "node server.js",
     "build": "node scripts/build-static.js"
   },
