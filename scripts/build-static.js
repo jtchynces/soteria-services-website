@@ -18,6 +18,7 @@ const files = [
   'app.js',
   'expansion.js',
   'supplier-admin.js',
+  'aed-catalog.js',
   'robots.txt',
   'sitemap.xml'
 ];

@@ -111,7 +111,7 @@ Supabase is the production source of truth. Starter products and starter setting
 
 ## AED configurator
 
-The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Existing entries are disabled pending verification of products, prices, availability and authorization. Review those details before enabling an item. Configurator entries must also exist as eligible Supabase products before they can be checked out. The inventory provider needs further work before it can replace the configuration source completely.
+The AED Configurator derives its choices from the same product catalog as the storefront. It builds a quote with individual equipment, quantities, and optional installation, training, and Soteria Pulse inquiries. Accessory compatibility, availability, tax, and delivery must be confirmed in the quote. The configurator does not initiate checkout. When no Supabase client is configured, local development can preview the quote-only supplier catalog; this does not publish or write products to a database.
 
 The cart submits product IDs and quantities to the server, which resolves prices from the product catalog. Checkout currently permits only items explicitly marked `non_taxable`; items requiring tax calculation or manual confirmation must be quoted until tax is configured and reviewed. Shipping options, reliable order reconciliation and a real Stripe test transaction remain outstanding. Do not treat this branch as ready for production checkout.
 
