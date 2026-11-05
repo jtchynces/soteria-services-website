@@ -22,8 +22,8 @@ create table if not exists public.supplier_price_reviews (
 alter table public.supplier_price_reviews enable row level security;
 revoke all on public.supplier_price_reviews from anon, public;
 grant select, insert, update on public.supplier_price_reviews to authenticated;
-drop policy if exists "Editors manage supplier reviews" on public.supplier_price_reviews;
-create policy "Editors manage supplier reviews" on public.supplier_price_reviews
+drop policy if exists "Administrators manage supplier reviews" on public.supplier_price_reviews;
+create policy "Administrators manage supplier reviews" on public.supplier_price_reviews
   for all to authenticated
-  using (public.current_user_role() in ('administrator', 'editor'))
-  with check (public.current_user_role() in ('administrator', 'editor'));
+  using (public.is_admin())
+  with check (public.is_admin());

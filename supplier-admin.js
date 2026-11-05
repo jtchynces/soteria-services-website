@@ -16,6 +16,7 @@ document.addEventListener('click', event => {
 
 function supplierAdminPage() {
   if (!session()) return login();
+  if (!can('security')) return adminShell('Supplier Price Review', '<p class="notice">Administrator access is required.</p>');
   setTimeout(loadSupplierReviews, 0);
   return adminShell('Supplier Price Review', '<p>Record verified SOS product prices for review. Saving here does not change the storefront.</p><form id="supplier-form" class="card"><input type="hidden" name="id"><div class="form-grid">' +
     [['name','Product name','text'],['manufacturer','Manufacturer','text'],['model','Model','text'],['sku','SKU','text'],['category','Category','text'],['supplier_url','SOS product URL','url'],['retail_cents','SOS retail price in cents','number'],['price_verified_on','Date verified','date'],['availability','Availability','text']].map(([name,label,type]) => '<div class="field"><label for="supplier-'+name+'">'+label+'</label><input id="supplier-'+name+'" name="'+name+'" type="'+type+'" '+(['name','supplier_url','retail_cents','price_verified_on'].includes(name)?'required':'')+' '+(name==='retail_cents'?'min="0" step="1"':'')+'></div>').join('') +

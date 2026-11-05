@@ -103,6 +103,8 @@ The Forgot Password action uses Supabase Auth password reset email. Configure th
 
 Product edits, quote requests, orders, media records, services, and site settings are stored in Supabase tables when Supabase environment variables are configured. This preserves Shay's updates across deployments, browsers, devices, and future code updates.
 
+Published products set to `Request Quote` display “Price on request” rather than their internal numeric amount and cannot be added to the cart. Confirm product identity, supplier availability and resale authorization before enabling a product. The existing editor stores an unused zero amount for an unpriced quote item; zero is not a verified selling price. Supplier cost observations are administrator-only and use a separate private table; apply and review both supplier migrations in a development database before testing that access.
+
 Supabase is the production source of truth. Starter products and starter settings are not used when Supabase content storage is configured, even if a table is empty. Seed rows are guarded so they only populate a brand-new empty table and never overwrite existing records. Set `ENABLE_DEMO_CONTENT=true` only for an intentional local demo without Supabase content.
 
 ## AED configurator

@@ -4,8 +4,8 @@ Soteria reports an SOS agreement for eligible items: retail matches the supplier
 
 ## Import and review
 
-1. Apply `supabase/migrations/005_supplier_review.sql` to a **development** Supabase project after checking its schema, RLS and backups. Do not run it against production without deployment approval.
-2. Sign in as an administrator or editor and open **Supplier Review**. The API requires a current Supabase session and role, and the table denies anonymous access. Keep the service role key server-side.
+1. Apply `supabase/migrations/005_supplier_review.sql` followed by `supabase/migrations/006_supplier_admin_only.sql` to a **development** Supabase project after checking its schema, RLS and backups. Do not run them against production without deployment approval. Audit any additional existing policies for this table because PostgreSQL policies can be permissive when combined.
+2. Sign in as an administrator and open **Supplier Review**. The API requires a current Supabase session and administrator role, and the table denies anonymous and editor access. Keep the service role key server-side.
 3. Enter one observation or paste a JSON array using `docs/supplier-import-template.json`. Required fields are product name, HTTPS SOS product URL, retail price in cents and the date the price was verified. Include SKU, manufacturer, model, category, original specifications, availability and tax basis when verified. Blank template entries cannot be imported.
 4. Cost and gross profit are calculated from retail. Each save returns the observation to `pending`; no product, public price, availability or publication status is changed. This screen does not yet publish reviewed prices to the product table. Use the existing product editor only after a separate review.
 
