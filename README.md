@@ -2,6 +2,8 @@
 
 Launch-focused marketing website with Stripe Checkout support, quote request workflows, and Supabase-protected admin/editor pages.
 
+For the current expansion audit, prioritized implementation plan, outstanding launch work and deployment checklist, see [docs/expansion-audit.md](docs/expansion-audit.md). Changes on the development branch require review before deployment.
+
 ## Required environment variables
 
 Copy `.env.example` and configure these values locally and in Vercel:
@@ -103,7 +105,7 @@ Supabase is the production source of truth. Starter products and starter setting
 
 ## AED configurator
 
-The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Update that file to add AED models, accessories, prices, descriptions, images, availability, or enabled/disabled status. The frontend uses a `ProductProvider` abstraction, so `inventoryEnabled` can later switch the same interface to product records without redesigning the configurator.
+The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Existing entries are disabled pending verification of products, prices, availability and authorization. Review those details before enabling an item. The current cart does not submit multiple items to Stripe; it is not ready for multi-item checkout. The inventory provider also needs further work before it can replace the configuration source completely.
 
 ## Tax note
 
