@@ -4,6 +4,8 @@ Launch-focused marketing website with Stripe Checkout support, quote request wor
 
 For the current expansion audit, prioritized implementation plan, outstanding launch work and deployment checklist, see [docs/expansion-audit.md](docs/expansion-audit.md). Changes on the development branch require review before deployment.
 
+For SOS supplier price reviews and the private import template, see [docs/supplier-review.md](docs/supplier-review.md).
+
 ## Required environment variables
 
 Copy `.env.example` and configure these values locally and in Vercel:

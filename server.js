@@ -4,6 +4,7 @@ const path = require('path');
 const { handleApi } = require('./lib/commerce');
 const { handleAuthApi } = require('./lib/auth');
 const { handleContentApi } = require('./lib/content');
+const { supplierReviewsHandler } = require('./lib/supplier');
 
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
@@ -36,6 +37,7 @@ const mimeTypes = {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   if (url.pathname.startsWith('/api/')) {
+    if (url.pathname === '/api/admin/supplier-reviews') return supplierReviewsHandler(req, res);
     const authHandled = await handleAuthApi(req, res, url.pathname);
     if (authHandled !== false) return;
     const contentHandled = await handleContentApi(req, res, url.pathname);
@@ -51,15 +53,18 @@ const server = http.createServer(async (req, res) => {
   }
 
   const safeUrl = decodeURIComponent(url.pathname).replace(/^\/+/, '');
-  let filePath = path.join(root, safeUrl || 'index.html');
-
-  if (!filePath.startsWith(root)) {
+  const publicFiles = new Set(['index.html', 'app.js', 'expansion.js', 'supplier-admin.js', 'styles.css', 'robots.txt', 'sitemap.xml']);
+  const allowedAsset = /^(assets|config)\/[a-zA-Z0-9_./-]+$/.test(safeUrl) && !safeUrl.split('/').includes('..');
+  if (safeUrl && !publicFiles.has(safeUrl) && !allowedAsset && path.extname(safeUrl)) {
     res.writeHead(403);
     res.end('Forbidden');
     return;
   }
+  let filePath = publicFiles.has(safeUrl) || allowedAsset ? path.join(root, safeUrl) : path.join(root, 'index.html');
+  if (!filePath.startsWith(root + path.sep)) { res.writeHead(403); res.end('Forbidden'); return; }
 
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    if (allowedAsset) { res.writeHead(404); res.end('Not found'); return; }
     filePath = path.join(root, 'index.html');
   }
 

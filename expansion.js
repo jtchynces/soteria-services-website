@@ -23,8 +23,11 @@ function businessInquiry(kind) {
 
 function shopEquipment() {
   const inventory = products().filter(p => !/training|course|pulse|event|consulting|assessment|mask fit/i.test(p.category || ''));
-  const categories = [...new Set(inventory.map(p => p.category).filter(Boolean))].sort();
-  return hero('Shop Equipment', 'Explore available AEDs, supplies and safety equipment.', 'Contact Us') + '<section class="section"><div class="form-grid"><div class="field"><label for="shop-search">Search products</label><input id="shop-search" type="search" placeholder="Search equipment"></div><div class="field"><label for="shop-category">Category</label><select id="shop-category"><option value="">All categories</option>' + categories.map(category => '<option value="'+esc(category)+'">'+esc(category)+'</option>').join('') + '</select></div></div><div id="shop-results" class="grid three" style="margin-top:24px">' + (inventory.length ? inventory.map(productCard).join('') : '<p>Contact us for current product availability and a quote.</p>') + '</div></section>';
+  const categories = [...new Set(['PRESTAN Equipment', ...inventory.map(p => p.category).filter(Boolean)])].sort();
+  const requested = new URLSearchParams(location.search).get('category') || '';
+  const selected = categories.includes(requested) ? requested : '';
+  const visible = inventory.filter(p => !selected || p.category === selected);
+  return hero('Shop Equipment', 'Explore available AEDs, supplies and safety equipment.', 'Contact Us') + '<section class="section"><div class="form-grid"><div class="field"><label for="shop-search">Search products</label><input id="shop-search" type="search" placeholder="Search equipment"></div><div class="field"><label for="shop-category">Category</label><select id="shop-category"><option value="">All categories</option>' + categories.map(category => '<option value="'+esc(category)+'" '+(category===selected?'selected':'')+'>'+esc(category)+'</option>').join('') + '</select></div></div><div id="shop-results" class="grid three" style="margin-top:24px">' + (visible.length ? visible.map(productCard).join('') : '<p>Contact us for current product availability and a quote.</p>') + '</div></section>';
 }
 
 function trainingCatalog() {
@@ -37,6 +40,7 @@ function trainingCatalog() {
 }
 
 const expansionRoutes = {
+  '/admin/supplier': () => supplierAdminPage(),
   '/shop-equipment': shopEquipment,
   '/courses': trainingCatalog,
   '/remote-medical-services': () => expansionPage('Event & Remote Medical Services', 'Medical coverage inquiries for events, industrial operations and remote worksites.', [

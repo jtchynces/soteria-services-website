@@ -8,6 +8,8 @@ const context = {
   hero: (title, description) => `<h1>${title}</h1><p>${description}</p>`,
   esc: value => String(value).replace(/[&<>"']/g, ''),
   products: () => [],
+  location: { search: '' },
+  URLSearchParams,
 };
 vm.createContext(context);
 vm.runInContext(fs.readFileSync('expansion.js', 'utf8') + '\nthis.routes = expansionRoutes; this.metadata = expansionSeo;', context);

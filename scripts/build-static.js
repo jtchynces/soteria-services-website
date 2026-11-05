@@ -17,6 +17,7 @@ const files = [
   'styles.css',
   'app.js',
   'expansion.js',
+  'supplier-admin.js',
   'robots.txt',
   'sitemap.xml'
 ];
@@ -45,6 +46,7 @@ const appRoutes = [
   'admin/orders',
   'admin/settings',
   'admin/invite',
+  'admin/supplier',
   'products',
   'checkout/success',
   'checkout/cancel',

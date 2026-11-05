@@ -6,7 +6,7 @@ delete process.env.VITE_SUPABASE_URL;
 delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 delete process.env.STRIPE_WEBHOOK_SECRET;
 process.env.STRIPE_SECRET_KEY = 'sk_test_local_only';
-const { quoteRequest, stripeWebhook, resolveCheckoutItems } = require('../lib/commerce');
+const { quoteRequest, stripeWebhook, resolveCheckoutItems, createCheckoutSession } = require('../lib/commerce');
 
 async function call(handler, body, headers = {}) {
   const req = Readable.from([JSON.stringify(body)]);
@@ -33,6 +33,10 @@ async function call(handler, body, headers = {}) {
   process.env.STRIPE_WEBHOOK_SECRET = 'whsec_local_only';
   const forged = await call(stripeWebhook, { type: 'checkout.session.completed', data: { object: {} } }, { 'stripe-signature': 'invalid' });
   assert.equal(forged.status, 400);
+  process.env.STRIPE_SECRET_KEY = 'sk_live_local_only';
+  const live = await call(createCheckoutSession, { productId: 'a' });
+  assert.equal(live.status, 503);
+  process.env.STRIPE_SECRET_KEY = 'sk_test_local_only';
   const records = {
     a: { id: 'a', name: 'AED', mode: 'buy_now', amount: 120000, currency: 'cad', tax_behavior: 'non_taxable' },
     b: { id: 'b', name: 'Pads', mode: 'buy_now', amount: 8000, currency: 'cad', tax_behavior: 'non_taxable' }
