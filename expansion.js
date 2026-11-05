@@ -1,4 +1,5 @@
 const expansionSeo = {
+  '/medical-services': ['Medical Services Ontario | Soteria Services', 'Request event, industrial and remote medical coverage for organizations and communities.'],
   '/remote-medical-services': ['Remote & Industrial Medical Services | Soteria Services', 'Explore remote medical coverage, rotational staffing inquiries and response planning for industrial and northern sites.'],
   '/emergency-management': ['Emergency Management Consulting Ontario | Soteria Services', 'Emergency response planning, preparedness assessments, exercises and incident management support for organizations and communities.'],
   '/health-safety': ['Workplace Health & Safety Training | Soteria Services', 'Workplace safety training and consultation inquiries, including WHMIS, PPE and emergency preparedness.'],
@@ -16,7 +17,7 @@ function expansionPage(title, summary, sections, cta, href) {
 function businessInquiry(kind) {
   const medical = kind === 'medical';
   const fields = medical
-    ? [['project','Project or event name'],['location','Location'],['dates','Dates'],['participants','Number of participants or workers'],['operations','Nature of operations and medical risks'],['hours','Coverage hours and staffing requirements'],['infrastructure','Existing medical infrastructure and evacuation arrangements']]
+    ? [['project','Project or event name'],['location','Location'],['dates','Dates'],['participants','Number of participants or workers'],['operations','Nature of operations and medical risks'],['hours','Coverage hours and staffing requirements'],['qualifications','Required medical qualifications'],['infrastructure','Existing medical infrastructure and evacuation arrangements']]
     : [['location','Training location'],['course','Requested course'],['participants','Number of participants'],['dates','Preferred dates'],['renewal','Certification renewal deadlines'],['requirements','Additional training requirements']];
   return hero(medical?'Request Medical Coverage':'Corporate Training Inquiry', medical?'Tell us about your event or worksite.':'Plan workplace training for your team.', 'Contact Us') + '<section class="section"><form id="business-inquiry" class="card" data-kind="'+kind+'"><div class="form-grid"><div class="field"><label for="business-name">Contact name</label><input id="business-name" name="name" required></div><div class="field"><label for="business-org">Organization</label><input id="business-org" name="organization" required></div><div class="field"><label for="business-email">Email</label><input id="business-email" type="email" name="email" required></div><div class="field"><label for="business-phone">Phone</label><input id="business-phone" type="tel" name="phone" required></div>' + fields.map(([name,label])=>'<div class="field"><label for="business-'+name+'">'+label+'</label><input id="business-'+name+'" name="'+name+'"></div>').join('') + '</div><div class="actions"><button class="btn" type="submit">Submit Inquiry</button></div><div id="business-inquiry-message" role="status"></div></form></section>';
 }
@@ -43,10 +44,10 @@ const expansionRoutes = {
   '/admin/supplier': () => supplierAdminPage(),
   '/shop-equipment': shopEquipment,
   '/courses': trainingCatalog,
-  '/remote-medical-services': () => expansionPage('Event & Remote Medical Services', 'Medical coverage inquiries for events, industrial operations and remote worksites.', [
-    ['Event coverage', 'Coverage can be discussed for festivals, sporting events, concerts, community gatherings and corporate events.'],
+  '/medical-services': () => expansionPage('Medical Services', 'Medical coverage inquiries for events, industrial operations and remote worksites.', [
+    ['Event coverage', content('event-medical-services').body || 'Coverage can be discussed for festivals, sporting events, concerts, community gatherings and corporate events.'],
     ['Industrial and remote worksites', 'Discuss on-site coverage, rotational medical staffing and equipment planning for construction, mining and northern operations.'],
-    ['Planning and response', 'Inquiries may include response planning, trauma training, medical infrastructure and evacuation coordination.'],
+    ['Communities and response', 'Inquiries from First Nations, communities and emergency response organizations may include medical infrastructure, standby and evacuation coordination.'],
     ['Service arrangements', 'Services depend on qualified personnel, scope of practice, licensing, operational capacity and contractual arrangements.']
   ], 'Request Medical Coverage', '/medical-coverage-request'),
   '/emergency-management': () => expansionPage('Emergency Management', 'Practical preparedness and response planning for organizations and communities.', [

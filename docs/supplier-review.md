@@ -1,13 +1,13 @@
 # SOS supplier review
 
-Soteria reports an SOS agreement for eligible items: retail matches the supplier's advertised retail, supplier cost is 75% of that amount, and the initial gross profit is the difference before expenses. Shipping, taxes and other fees are not discounted by this calculation. Amounts use integer Canadian cents, with cost rounded to the nearest cent; confirm rounding with the supplier when invoices differ.
+Record the actual distributor cost from the supplier's source and the applicable Canadian MSRP or MAP. Supplier discounts vary by item. Gross profit shown here is retail less supplier cost before shipping, fees, taxes and other expenses. Amounts use integer Canadian cents.
 
 ## Import and review
 
 1. Apply `supabase/migrations/005_supplier_review.sql` followed by `supabase/migrations/006_supplier_admin_only.sql` to a **development** Supabase project after checking its schema, RLS and backups. Do not run them against production without deployment approval. Audit any additional existing policies for this table because PostgreSQL policies can be permissive when combined.
 2. Sign in as an administrator and open **Supplier Review**. The API requires a current Supabase session and administrator role, and the table denies anonymous and editor access. Keep the service role key server-side.
-3. Enter one observation or paste a JSON array using `docs/supplier-import-template.json`. Required fields are product name, HTTPS SOS product URL, retail price in cents and the date the price was verified. Include SKU, manufacturer, model, category, original specifications, availability and tax basis when verified. Blank template entries cannot be imported.
-4. Cost and gross profit are calculated from retail. Each save returns the observation to `pending`; no product, public price, availability or publication status is changed. This screen does not yet publish reviewed prices to the product table. Use the existing product editor only after a separate review.
+3. Enter one observation or paste a JSON array using `docs/supplier-import-template.json`. Required fields are product name, HTTPS SOS product URL, retail price and actual supplier cost in cents, and the date the price was verified. Include SKU, manufacturer, model, category, original specifications, availability and tax basis when verified. Blank template entries cannot be imported.
+4. Gross profit is calculated from the entered retail and supplier cost. Each save returns the observation to `pending`; no product, public price, availability or publication status is changed. Existing observations may contain costs calculated using the former 25% assumption and must be reverified against supplier records. This screen does not yet publish reviewed prices to the product table. Use the existing product editor only after a separate review.
 
 ## Research candidates
 
@@ -23,4 +23,6 @@ The quote-only development catalog is based on the following SOS collections: ht
 
 ## Remaining launch work
 
-The review queue is not a supplier inventory integration or automated fulfillment. A manual supplier order workflow, durable order reconciliation, shipping charges, configured Canadian tax handling, real test-mode payment verification, email notifications, course scheduling and registration remain outstanding. The development branch blocks live Stripe Checkout sessions. No migration has been applied and no supplier records have been written to a live database as part of this work.
+The administrator-only Excel preview accepts XLSX files under 1 MB, lets the administrator adjust column mappings and identifies missing prices, duplicate item numbers and fractional-cent amounts. It does not save, approve, import or publish rows. Source files are read for the request only; do not commit workbooks or private prices. Existing price observations need revalidation against the actual supplier files.
+
+The review queue is not a supplier inventory integration or automated fulfillment. A durable spreadsheet import with source dates, repeat-import matching, approval, and history; a manual supplier order workflow; durable order reconciliation; shipping charges; configured Canadian tax handling; real test-mode payment verification; email notifications; course scheduling and registration remain outstanding. The development branch blocks live Stripe Checkout sessions and requires explicit test-mode configuration. No migration has been applied and no supplier records have been written to a live database as part of this work.

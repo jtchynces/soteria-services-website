@@ -37,6 +37,9 @@ async function call(handler, body, headers = {}) {
   const live = await call(createCheckoutSession, { productId: 'a' });
   assert.equal(live.status, 503);
   process.env.STRIPE_SECRET_KEY = 'sk_test_local_only';
+  delete process.env.ENABLE_STRIPE_SANDBOX_CHECKOUT;
+  const disabled = await call(createCheckoutSession, { productId: 'a' });
+  assert.equal(disabled.status, 503);
   const records = {
     a: { id: 'a', name: 'AED', mode: 'buy_now', amount: 120000, currency: 'cad', tax_behavior: 'non_taxable' },
     b: { id: 'b', name: 'Pads', mode: 'buy_now', amount: 8000, currency: 'cad', tax_behavior: 'non_taxable' }

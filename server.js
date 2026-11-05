@@ -5,6 +5,7 @@ const { handleApi } = require('./lib/commerce');
 const { handleAuthApi } = require('./lib/auth');
 const { handleContentApi, publicSettingsHandler, productsHandler } = require('./lib/content');
 const { supplierReviewsHandler } = require('./lib/supplier');
+const { supplierImportHandler } = require('./lib/supplier-import');
 
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
@@ -37,10 +38,16 @@ const mimeTypes = {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  if (['GET', 'HEAD'].includes(req.method) && ['/event-medical-services', '/remote-medical-services'].includes(url.pathname.replace(/\/$/, ''))) {
+    res.writeHead(308, { Location: '/medical-services' + url.search });
+    res.end();
+    return;
+  }
   if (url.pathname.startsWith('/api/')) {
     if (localPreview && url.pathname === '/api/site-settings') return publicSettingsHandler(req, res, { localPreview: true });
     if (localPreview && url.pathname === '/api/products') return productsHandler(req, res, { localPreview: true });
     if (url.pathname === '/api/admin/supplier-reviews') return supplierReviewsHandler(req, res);
+    if (url.pathname === '/api/admin/supplier-import') return supplierImportHandler(req, res);
     const authHandled = await handleAuthApi(req, res, url.pathname);
     if (authHandled !== false) return;
     const contentHandled = await handleContentApi(req, res, url.pathname);

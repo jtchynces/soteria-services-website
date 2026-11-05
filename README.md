@@ -47,7 +47,7 @@ The build validates required launch files, JavaScript syntax, Stripe dependencie
 ## Verify Stripe Checkout
 
 1. Use Stripe sandbox mode keys.
-2. Set `STRIPE_SECRET_KEY` and `SITE_URL`.
+2. Set `STRIPE_SECRET_KEY`, `SITE_URL`, and `ENABLE_STRIPE_SANDBOX_CHECKOUT=true` in an isolated test environment. Checkout remains blocked by default and live keys cannot create sessions on this branch.
 3. Run `npm run dev`.
 4. Click a Buy Now or Pay Deposit button.
 5. Use Stripe sandbox card `4242 4242 4242 4242` with any future expiry, CVC, and postal code.

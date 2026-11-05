@@ -29,10 +29,15 @@ async function verify(preview) {
     if (preview) {
       assert.ok(catalog.products.some(item => item.category === 'PRESTAN Equipment'));
       assert.ok(catalog.products.every(item => item.mode === 'request_quote'));
-      for (const page of ['/shop-equipment', '/courses', '/corporate-training', '/remote-medical-services', '/emergency-management', '/health-safety', '/admin/products']) {
+      for (const page of ['/shop-equipment', '/courses', '/corporate-training', '/medical-services', '/emergency-management', '/health-safety', '/admin/products']) {
         const response = await fetch(base + page);
         assert.equal(response.status, 200, page);
         assert.match(await response.text(), /<main id="app">/);
+      }
+      for (const oldPath of ['/event-medical-services', '/remote-medical-services']) {
+        const redirect = await fetch(base + oldPath + '?source=check', { redirect: 'manual' });
+        assert.equal(redirect.status, 308);
+        assert.equal(redirect.headers.get('location'), '/medical-services?source=check');
       }
       const admin = await fetch(base + '/api/admin/products');
       assert.notEqual(admin.status, 200);

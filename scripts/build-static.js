@@ -56,6 +56,7 @@ const appRoutes = [
   'courses',
   'shop-equipment',
   'remote-medical-services',
+  'medical-services',
   'medical-coverage-request',
   'emergency-management',
   'health-safety',
