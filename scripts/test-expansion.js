@@ -13,6 +13,7 @@ const context = {
   URLSearchParams,
 };
 vm.createContext(context);
+vm.runInContext(fs.readFileSync('catalogue-sections.js', 'utf8'), context);
 vm.runInContext(fs.readFileSync('expansion.js', 'utf8') + '\nthis.routes = expansionRoutes; this.metadata = expansionSeo;', context);
 for (const path of ['/medical-services', '/emergency-management', '/health-safety', '/corporate-training', '/medical-coverage-request', '/about', '/shop-equipment', '/courses']) {
   assert.equal(typeof context.routes[path], 'function');

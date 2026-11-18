@@ -16,6 +16,7 @@ const files = [
   'index.html',
   'styles.css',
   'app.js',
+  'catalogue-sections.js',
   'expansion.js',
   'supplier-admin.js',
   'aed-sheet.js',

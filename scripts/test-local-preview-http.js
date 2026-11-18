@@ -12,7 +12,7 @@ async function unusedPort() {
 
 async function verify(preview) {
   const port = await unusedPort();
-  const env = { ...process.env, PORT: String(port), NODE_ENV: 'test', PUBLIC_SITE_MODE: 'coming_soon', SOS_CATALOG_PREVIEW: 'false', ENABLE_DEMO_CONTENT: 'false', SUPABASE_URL: '', VITE_SUPABASE_URL: '', SUPABASE_SERVICE_ROLE_KEY: '', SUPABASE_ANON_KEY: '', VITE_SUPABASE_ANON_KEY: '', STRIPE_SECRET_KEY: '', STRIPE_WEBHOOK_SECRET: '' };
+  const env = { ...process.env, PORT: String(port), NODE_ENV: 'test', PUBLIC_SITE_MODE: 'coming_soon', SOS_CATALOG_PREVIEW: 'false', SOS_PRICED_CATALOGUE: '', ENABLE_DEMO_CONTENT: 'false', SUPABASE_URL: '', VITE_SUPABASE_URL: '', SUPABASE_SERVICE_ROLE_KEY: '', SUPABASE_ANON_KEY: '', VITE_SUPABASE_ANON_KEY: '', STRIPE_SECRET_KEY: '', STRIPE_WEBHOOK_SECRET: '' };
   const child = spawn(process.execPath, ['server.js', ...(preview ? ['--local-preview'] : [])], { env, stdio: ['ignore', 'pipe', 'pipe'] });
   try {
     await new Promise((resolve, reject) => {

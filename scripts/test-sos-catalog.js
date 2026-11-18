@@ -14,6 +14,7 @@ const { getProductList } = require('../lib/content');
     assert.equal(product.amount, 0);
     assert.equal(product.image_url, '');
   }
+  delete process.env.SOS_PRICED_CATALOGUE;
   process.env.SOS_CATALOG_PREVIEW = 'true';
   process.env.NODE_ENV = 'development';
   assert.equal((await getProductList(null)).length, catalog.length + firstAid.length);

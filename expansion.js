@@ -25,7 +25,7 @@ function businessInquiry(kind) {
   return hero(medical?'Request Medical Coverage':'Corporate Training Inquiry', medical?'Tell us about your event or worksite.':'Plan workplace training for your team.', 'Contact Us') + '<section class="section"><form id="business-inquiry" class="card" data-kind="'+kind+'"><div class="form-grid"><div class="field"><label for="business-name">Contact name</label><input id="business-name" name="name" required></div><div class="field"><label for="business-org">Organization</label><input id="business-org" name="organization" required></div><div class="field"><label for="business-email">Email</label><input id="business-email" type="email" name="email" required></div><div class="field"><label for="business-phone">Phone</label><input id="business-phone" type="tel" name="phone" required></div>' + serviceType + fields.map(([name,label])=>'<div class="field"><label for="business-'+name+'">'+label+'</label><input id="business-'+name+'" name="'+name+'"></div>').join('') + '</div><div class="actions"><button class="btn" type="submit">Submit Inquiry</button></div><div id="business-inquiry-message" role="status"></div></form></section>';
 }
 
-function equipmentCategory(category) { return category === 'Training Materials' || !/training|course|pulse|event|consulting|assessment|mask fit/i.test(category || ''); }
+function equipmentCategory(category) { return CatalogueSections.isEquipmentCategory(category); }
 function shopEquipment() {
   const inventory = products().filter(p => equipmentCategory(p.category));
   const categories = [...new Set(['PRESTAN Equipment', ...inventory.map(p => p.category).filter(Boolean)])].sort();
@@ -36,7 +36,7 @@ function shopEquipment() {
 }
 
 function trainingCatalog() {
-  const courses = products().filter(p => p.category !== 'Training Materials' && /training|course/i.test(p.category || ''));
+  const courses = products().filter(p => CatalogueSections.isTrainingProduct(p));
   return expansionPage('Training & Courses', 'First aid, CPR and workplace training for individuals and organizations.', [
     ['First aid and CPR', 'Ask about emergency first aid, standard first aid, CPR/AED and basic life support options.'],
     ['Corporate training', 'Discuss group bookings and training at your workplace where appropriate.'],

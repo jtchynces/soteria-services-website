@@ -63,7 +63,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   const safeUrl = decodeURIComponent(url.pathname).replace(/^\/+/, '');
-  const publicFiles = new Set(['index.html', 'app.js', 'expansion.js', 'supplier-admin.js', 'aed-sheet.js', 'aed-catalog.js', 'quote-cart.js', 'styles.css', 'robots.txt', 'sitemap.xml']);
+  const publicFiles = new Set(['index.html', 'app.js', 'catalogue-sections.js', 'expansion.js', 'supplier-admin.js', 'aed-sheet.js', 'aed-catalog.js', 'quote-cart.js', 'styles.css', 'robots.txt', 'sitemap.xml']);
   const allowedAsset = /^(assets|config)\/[a-zA-Z0-9_./-]+$/.test(safeUrl) && !safeUrl.split('/').includes('..');
   if (safeUrl && !publicFiles.has(safeUrl) && !allowedAsset && path.extname(safeUrl)) {
     res.writeHead(403);

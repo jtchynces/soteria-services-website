@@ -8,6 +8,7 @@ delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 delete process.env.SUPABASE_ANON_KEY;
 delete process.env.VITE_SUPABASE_ANON_KEY;
 delete process.env.SOS_CATALOG_PREVIEW;
+delete process.env.SOS_PRICED_CATALOGUE;
 delete process.env.ENABLE_DEMO_CONTENT;
 
 const rows = [{ key: 'public_site_mode', value: 'coming_soon' }, { key: 'company_logo_url', value: 'https://valid.test/logo.png' }];
