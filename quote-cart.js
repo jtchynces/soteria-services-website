@@ -61,19 +61,38 @@ const QuoteCart = (() => {
   }
   function renderPage() {
     const cart = read(), catalog = products();
-    const eligible = product => !!product && product.enabled !== false && product.checkout_verified === true && product.price_verified === true && product.fulfillment_verified === true && product.shipping_verified === true && ['buy_now','deposit_only'].includes(product.mode) && product.currency === 'cad' && product.tax_behavior === 'non_taxable' && Number.isSafeInteger(product.amount) && product.amount >= 50 && !['out_of_stock','unavailable','sold_out'].includes(String(product.inventory_status || '').toLowerCase());
+    const eligible = product => !!product && product.enabled !== false && product.checkout_verified === true && product.price_verified === true && product.fulfillment_verified === true && product.shipping_verified === true && ['buy_now','deposit_only'].includes(product.mode) && product.currency === 'cad' && (product.tax_behavior === 'non_taxable' || product.checkout_before_tax_confirmation === true) && Number.isSafeInteger(product.amount) && product.amount >= 50 && !['out_of_stock','unavailable','sold_out'].includes(String(product.inventory_status || '').toLowerCase());
     const resolved = cart.items.map(item => ({ item, product:catalog.find(entry => entry.id === item.productId) }));
     const aeds = resolved.filter(row => row.product && AedCatalog.build([row.product]).aeds.length).map(row => row.product);
     const accessories = resolved.filter(row => row.product && AedCatalog.build([row.product]).accessories.length).map(row => row.product);
     const compatible = !aeds.length || accessories.every(part => aeds.some(aed => AedCatalog.compatible(aed, part)));
     const canCheckout = !legacyError && !cart.services.length && compatible && resolved.length > 0 && resolved.length <= 30 && new Set(cart.items.map(item=>item.productId)).size === cart.items.length && resolved.every(row => eligible(row.product) && Number.isInteger(row.item.quantity) && row.item.quantity >= 1 && row.item.quantity <= 99);
+    const hasAed = resolved.some(row => row.product && (row.product.installation_group === 'aed' || AedCatalog.build([row.product]).aeds.length));
+    const installBlock = hasAed ? '<div class="card" id="install-offer"><h2>Free installation</h2><p>Optional for an AED shipping within Southwestern Ontario. AED pad serial numbers are recorded on site at installation. Shipping is a placeholder flat rate of $19.99 CAD per order, added at checkout. Tax is not calculated yet.</p><div class="form-grid"><div class="field"><label for="install-line1">Shipping address</label><input id="install-line1" autocomplete="address-line1"></div><div class="field"><label for="install-city">City</label><input id="install-city"></div><div class="field"><label for="install-province">Province</label><input id="install-province" value="ON"></div><div class="field"><label for="install-postal">Postal code</label><input id="install-postal" placeholder="N6A 1A1"></div></div><div id="install-choice" hidden><label><input type="checkbox" id="install-requested"> <strong>Free installation</strong></label><p id="install-copy"></p></div></div>' : '';
     const rows = cart.items.map((item, index) => {
       const product = catalog.find(entry => entry.id === item.productId);
       const sku = product && AedCatalog.partNumber(product);
       return '<tr><td>'+esc(product?.name || 'Product no longer available')+(sku?'<br><small>Manufacturer part: '+esc(sku)+'</small>':'')+'</td><td><label>Quantity <input type="number" min="1" max="99" value="'+esc(item.quantity)+'" data-quote-quantity="'+index+'"></label></td><td><button class="btn secondary" type="button" data-quote-remove="'+index+'">Remove</button></td></tr>';
     }).join('');
     const selectedServices = cart.services.length ? '<fieldset><legend>Selected services</legend>'+cart.services.map(service=>'<label><input type="checkbox" data-quote-service value="'+esc(service)+'" checked> '+esc(service)+'</label>').join(' ')+'</fieldset>' : '';
-    return hero('Cart','Review your selections and request a quote.','Contact Us')+'<section class="section"><div id="quote-cart-notice" role="status">'+(notice?'<p class="notice">'+esc(notice)+'</p>':'')+(legacyError?'<p class="notice" role="alert">'+esc(legacyError)+' Your previous cart has been preserved on this device.</p>':'')+'</div>'+(cart.items.length?'<div class="table-wrap"><table><thead><tr><th>Product</th><th>Quantity</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+selectedServices+(canCheckout?'<p>Verified subtotal: <strong>'+money(resolved.reduce((sum,row)=>sum+row.product.amount*row.item.quantity,0))+'</strong></p><button class="btn" type="button" data-unified-checkout>Checkout</button><div id="unified-checkout-message" role="status"></div>':'<p>Pricing, availability and delivery will be confirmed in your quote.</p>')+'<form id="quote-cart-form" class="card"><h2>Request a Quote</h2><div class="form-grid"><div class="field"><label for="qc-name">Name</label><input id="qc-name" name="name" required maxlength="150"></div><div class="field"><label for="qc-org">Organization</label><input id="qc-org" name="organization" maxlength="150"></div><div class="field"><label for="qc-email">Email</label><input id="qc-email" name="email" type="email" required maxlength="254"></div><div class="field"><label for="qc-phone">Phone</label><input id="qc-phone" name="phone" type="tel" maxlength="50"></div><div class="field full"><label for="qc-location">Delivery location</label><input id="qc-location" name="deliveryLocation" maxlength="200"></div><div class="field full"><label for="qc-message">Additional instructions</label><textarea id="qc-message" name="message" maxlength="2000"></textarea></div></div><button class="btn" type="submit">Submit Quote Request</button><div id="quote-cart-message" role="status"></div></form>':'<p>Your cart is empty.</p>')+'<div class="actions"><a class="btn secondary" href="/shop-equipment" data-link>Continue Shopping</a></div></section>';
+    return hero('Cart','Review your selections and request a quote.','Contact Us')+'<section class="section"><div id="quote-cart-notice" role="status">'+(notice?'<p class="notice">'+esc(notice)+'</p>':'')+(legacyError?'<p class="notice" role="alert">'+esc(legacyError)+' Your previous cart has been preserved on this device.</p>':'')+'</div>'+(cart.items.length?'<div class="table-wrap"><table><thead><tr><th>Product</th><th>Quantity</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+selectedServices+(canCheckout?'<p>Verified subtotal: <strong>'+money(resolved.reduce((sum,row)=>sum+row.product.amount*row.item.quantity,0))+'</strong></p><button class="btn" type="button" data-unified-checkout>Checkout</button><div id="unified-checkout-message" role="status"></div>':'<p>Pricing, availability and delivery will be confirmed in your quote.</p>')+installBlock+'<form id="quote-cart-form" class="card"><h2>Request a Quote</h2><div class="form-grid"><div class="field"><label for="qc-name">Name</label><input id="qc-name" name="name" required maxlength="150"></div><div class="field"><label for="qc-org">Organization</label><input id="qc-org" name="organization" maxlength="150"></div><div class="field"><label for="qc-email">Email</label><input id="qc-email" name="email" type="email" required maxlength="254"></div><div class="field"><label for="qc-phone">Phone</label><input id="qc-phone" name="phone" type="tel" maxlength="50"></div><div class="field full"><label for="qc-location">Delivery location</label><input id="qc-location" name="deliveryLocation" maxlength="200"></div><div class="field full"><label for="qc-message">Additional instructions</label><textarea id="qc-message" name="message" maxlength="2000"></textarea></div></div><button class="btn" type="submit">Submit Quote Request</button><div id="quote-cart-message" role="status"></div></form>':'<p>Your cart is empty.</p>')+'<div class="actions"><a class="btn secondary" href="/shop-equipment" data-link>Continue Shopping</a></div></section>';
+  }
+  async function refreshInstallation() {
+    const choice = document.getElementById('install-choice');
+    if (!choice) return;
+    const province = (document.getElementById('install-province') || {}).value || '';
+    const postal = (document.getElementById('install-postal') || {}).value || '';
+    const productIds = read().items.map(item => item.productId);
+    if (!province || !postal || !productIds.length) { choice.hidden = true; return; }
+    try {
+      const response = await fetch('/api/installation-preview', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ province, postal, productIds }) });
+      const result = await jsonResponse(response);
+      const offer = result && result.installation;
+      if (!response.ok || !offer || !offer.available) { choice.hidden = true; const box = document.getElementById('install-requested'); if (box) box.checked = false; return; }
+      choice.hidden = false;
+      const copy = document.getElementById('install-copy');
+      if (copy) copy.textContent = offer.description || '';
+    } catch (error) { choice.hidden = true; }
   }
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-quote-add]');
@@ -101,7 +120,8 @@ const QuoteCart = (() => {
     try {
       const cart = read();
       if (legacyError || cart.services.length) throw new Error('Please request a quote for this cart.');
-      const response = await fetch('/api/create-checkout-session', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({items:cart.items}) });
+      const province = document.getElementById('install-province'), postal = document.getElementById('install-postal'), requested = document.getElementById('install-requested');
+      const response = await fetch('/api/create-checkout-session', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ items:cart.items, installationRequested: !!(requested && requested.checked), shippingAddress: { country:'CA', line1:(document.getElementById('install-line1')||{}).value||'', city:(document.getElementById('install-city')||{}).value||'', province: province ? province.value : '', postal: postal ? postal.value : '' } }) });
       const result = await jsonResponse(response);
       if (!response.ok) throw new Error(result.error || 'Checkout is not available.');
       location.href = result.url;
@@ -116,6 +136,7 @@ const QuoteCart = (() => {
       else if (services.includes(service) && !cart.services.includes(service)) cart.services.push(service);
       cart.requestId = ''; write(cart); return;
     }
+    if (event.target.matches('#install-province, #install-postal, #install-line1, #install-city')) { refreshInstallation(); return; }
     if (!event.target.matches('[data-quote-quantity]')) return;
     const cart = read(), index = Number(event.target.dataset.quoteQuantity), quantity = Number(event.target.value);
     if (cart.items[index] && Number.isInteger(quantity) && quantity >= 1 && quantity <= 99) { cart.items[index].quantity = quantity; cart.requestId = ''; write(cart); }

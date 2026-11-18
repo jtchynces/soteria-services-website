@@ -3,6 +3,7 @@ const { supplierReviewsHandler } = require('../lib/supplier');
 const { supplierImportHandler } = require('../lib/supplier-import');
 const {
   createCheckoutSession,
+  installationPreview,
   productsHandler,
   quoteRequest,
   stripeWebhook
@@ -23,6 +24,7 @@ const routes = {
   '/api/site-settings': ['site-settings', publicSettingsHandler],
   '/api/content': ['content', contentHandler],
   '/api/products': ['products', productsHandler],
+  '/api/installation-preview': ['installation-preview', installationPreview],
   '/api/admin/products': ['admin-products', upsertProductHandler],
   '/api/admin/products/archive': ['admin-products-archive', archiveProductHandler],
   '/api/admin/content': ['admin-content', adminContentHandler],

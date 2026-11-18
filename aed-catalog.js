@@ -49,12 +49,15 @@ const AedCatalog = (() => {
   function build(products) {
     const aeds = [], accessories = [];
     for (const product of products) {
-      if (!product || product.enabled === false || !product.id || !/\baed\b/i.test(String(product.category || ''))) continue;
+      if (!product || product.enabled === false || !product.id) continue;
+      if (product.catalogue === 'prestan' || product.catalogue === 'sos') continue;
+      const sheetDevice = product.category_id === 'aed-devices';
+      if (!sheetDevice && !/\baed\b/i.test(String(product.category || ''))) continue;
       const text = `${product.category || ''} ${product.name || ''}`;
-      const isAccessory = accessoryWords.test(text);
-      if (!isAccessory && (nonDeviceWords.test(text) || !/\baed\b/i.test(String(product.name || '')))) continue;
+      const isAccessory = !sheetDevice && accessoryWords.test(text);
+      if (!isAccessory && !sheetDevice && (nonDeviceWords.test(text) || !/\baed\b/i.test(String(product.name || '')))) continue;
       const amount = Number(product.amount);
-      const price = product.price_verified === true && product.mode === 'buy_now' && Number.isSafeInteger(amount) && amount > 0 ? amount : null;
+      const price = product.price_verified === true && Number.isSafeInteger(amount) && amount > 0 ? amount : null;
       const item = { id: product.id, name: product.name || '', description: product.description || '', image: product.image || '', mode: product.mode, price, type: isAccessory ? 'accessory' : 'aed', part_number: partNumber(product), exclusive_group: isAccessory ? exclusiveGroup(product) : '' };
       (isAccessory ? accessories : aeds).push(item);
     }
