@@ -1,0 +1,21 @@
+{
+  "currency": "cad",
+  "prices_cents": {
+    "crc-online-dogs-cats": 3000,
+    "crc-online-opioid": 3000,
+    "crc-online-pfa-self-care": 2000,
+    "crc-online-pfa-caring": 2000,
+    "crc-online-whmis-2015": 3795,
+    "crc-online-bloodborne": 3495,
+    "crc-online-bear-travelling": 1995,
+    "crc-online-bear-working": 1995,
+    "crc-online-confined": 2495,
+    "crc-online-ppe": 2495,
+    "crc-online-fire": 2495,
+    "crc-online-lockout": 2495,
+    "crc-online-medical-terminology": 28000,
+    "crc-online-h2s": 2495,
+    "crc-online-tdg": 3495,
+    "crc-online-tdg-energy": 3495
+  }
+}

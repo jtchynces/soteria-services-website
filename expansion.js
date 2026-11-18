@@ -35,19 +35,29 @@ function shopEquipment() {
   return hero('Shop Equipment', 'Explore available AEDs, supplies and safety equipment.', 'Contact Us') + '<section class="section"><div class="form-grid"><div class="field"><label for="shop-search">Search products</label><input id="shop-search" type="search" placeholder="Search equipment"></div><div class="field"><label for="shop-category">Category</label><select id="shop-category"><option value="">All categories</option>' + categories.map(category => '<option value="'+esc(category)+'" '+(category===selected?'selected':'')+'>'+esc(category)+'</option>').join('') + '</select></div></div><div id="shop-results" class="grid three" style="margin-top:24px">' + (visible.length ? visible.map(productCard).join('') : '<p>Contact us for current product availability and a quote.</p>') + '</div></section>';
 }
 
+const crcLoginNote = 'After purchase, you\'ll receive an email with instructions to log in to your course.';
+const crcRefundNote = 'Online courses are non-refundable.';
+function redCrossCourses() { return products().filter(product => product.category === 'Online Courses' && product.tag === 'Canadian Red Cross'); }
+function redCrossCard(course) {
+  return '<article class="card service-card"><div><span class="pill">Canadian Red Cross</span><h3><a href="' + productPath(course) + '" data-link>' + esc(course.name) + '</a></h3><p>' + esc(course.language) + '</p><p><strong>' + money(course.amount) + '</strong></p><p>' + esc(crcLoginNote) + '</p><p>' + esc(crcRefundNote) + '</p></div><label class="quote-quantity">Seats <input type="number" min="1" max="99" value="1" data-quote-card-quantity aria-label="Seats for ' + esc(course.name) + '"></label><div class="actions"><button class="btn" type="button" data-quote-add="' + esc(course.id) + '">Add to Cart</button></div></article>';
+}
+function redCrossSection() {
+  const courses = redCrossCourses();
+  return '<section class="section" id="canadian-red-cross-online-courses"><h2>Canadian Red Cross Online Courses</h2><p>These courses are offered by Soteria Services as an authorized reseller.</p><p>' + esc(crcRefundNote) + '</p><div class="grid three">' + (courses.length ? courses.map(redCrossCard).join('') : '<p>Contact us for current course availability.</p>') + '</div></section>';
+}
 function trainingCatalog() {
-  const courses = products().filter(p => CatalogueSections.isTrainingProduct(p));
+  const courses = products().filter(p => CatalogueSections.isTrainingProduct(p) && p.tag !== 'Canadian Red Cross');
   return expansionPage('Training & Courses', 'First aid, CPR and workplace training for individuals and organizations.', [
     ['First aid and CPR', 'Ask about emergency first aid, standard first aid, CPR/AED and basic life support options.'],
     ['Corporate training', 'Discuss group bookings and training at your workplace where appropriate.'],
     ['Workplace safety', 'Ask about available online and in-person safety courses. Course availability, certification and provider details are confirmed before booking.']
-  ], 'Request Corporate Training', '/corporate-training') + '<section class="section"><h2>Online Courses</h2><p>Explore online course availability and enrollment inquiries.</p><a class="btn secondary" href="/online-courses" data-link>View Online Courses</a><h2>Available Training</h2><div class="grid three">' + (courses.length ? courses.map(productCard).join('') : '<p>Contact us for current courses and dates.</p>') + '</div></section>';
+  ], 'Request Corporate Training', '/corporate-training') + '<section class="section"><h2>Online Courses</h2><p>Explore online course availability and enrollment inquiries.</p><a class="btn secondary" href="/online-courses" data-link>Canadian Red Cross Online Courses</a><h2>Available Training</h2><div class="grid three">' + (courses.length ? courses.map(productCard).join('') : '<p>Contact us for current courses and dates.</p>') + '</div></section>' + redCrossSection();
 }
 
 function onlineCourses() {
-  const courses = products().filter(product => product.category === 'Online Courses');
+  const courses = products().filter(product => product.category === 'Online Courses' && product.tag !== 'Canadian Red Cross');
   const form = courses.length?'<form id="online-course-inquiry" class="card"><h2>Request Enrollment</h2><div class="form-grid"><div class="field"><label for="online-course">Course</label><select id="online-course" name="course">'+courses.map(course=>'<option value="'+esc(course.id)+'">'+esc(course.name)+'</option>').join('')+'</select></div><div class="field"><label for="online-language">Preferred language</label><select id="online-language" name="language"><option>English</option><option>French</option></select></div><div class="field"><label for="online-name">Participant name</label><input id="online-name" name="name" required maxlength="150"></div><div class="field"><label for="online-email">Participant email</label><input id="online-email" name="email" type="email" required maxlength="254"></div><div class="field"><label for="online-org">Organization</label><input id="online-org" name="organization" maxlength="150"></div><div class="field"><label for="online-phone">Phone</label><input id="online-phone" name="phone" type="tel" maxlength="50"></div></div><button class="btn" type="submit">Request Enrollment</button><div id="online-inquiry-message" role="status"></div></form>':'';
-  return hero('Online Courses','Request online training and confirm enrollment with Soteria.','Contact Us')+'<section class="section"><p>Enrollment is arranged by Soteria. Course and language availability are confirmed before enrollment; access is confirmed afterward. Online courses are non-refundable, subject to applicable law.</p><div class="grid three">'+(courses.length?courses.map(productCard).join(''):'<p>Contact us for current course availability.</p>')+'</div>'+form+'</section>';
+  return hero('Online Courses','Request online training and confirm enrollment with Soteria.','Contact Us')+redCrossSection()+'<section class="section"><p>Enrollment is arranged by Soteria. Course and language availability are confirmed before enrollment; access is confirmed afterward. '+esc(crcRefundNote)+'</p><div class="grid three">'+(courses.length?courses.map(productCard).join(''):'<p>Contact us for current course availability.</p>')+'</div>'+form+'</section>';
 }
 
 function soteriaReady() {

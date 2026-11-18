@@ -33,6 +33,16 @@ const QuoteCart = (() => {
     const badge = document.getElementById('quote-cart-count');
     if (badge) badge.textContent = String(read().items.reduce((sum, item) => sum + (Number.isInteger(item.quantity) ? item.quantity : 0), 0));
   }
+  function isRedCrossCourse(product) { return !!(product && product.category === 'Online Courses' && product.tag === 'Canadian Red Cross'); }
+  function participantFields(index, quantity, participants) {
+    const people = Array.isArray(participants) ? participants : [];
+    let html = '';
+    for (let seat = 0; seat < quantity; seat += 1) {
+      const person = people[seat] || {};
+      html += '<div class="form-grid"><div class="field"><label>Participant ' + (seat + 1) + ' name</label><input data-crc-name="' + index + '" data-crc-seat="' + seat + '" value="' + esc(person.name || '') + '" maxlength="150"></div><div class="field"><label>Participant ' + (seat + 1) + ' email</label><input type="email" data-crc-email="' + index + '" data-crc-seat="' + seat + '" value="' + esc(person.email || '') + '" maxlength="254"></div></div>';
+    }
+    return html;
+  }
   function add(items, selectedServices = []) {
     if (busy) throw new Error('Wait for the current quote request to finish.');
     const cart = read();
@@ -41,7 +51,7 @@ const QuoteCart = (() => {
       const existing = cart.items.find(entry => entry.productId === item.productId);
       if (existing && existing.quantity + item.quantity > 99) throw new Error('Maximum quantity is 99 per product.');
       if (existing) existing.quantity += item.quantity;
-      else cart.items.push({ productId:item.productId, quantity:item.quantity });
+      else cart.items.push({ productId:item.productId, quantity:item.quantity, participants:Array.isArray(item.participants) ? item.participants : [] });
     }
     if (cart.items.length > 30) throw new Error('A quote can contain up to 30 products.');
     cart.services = [...new Set([...cart.services, ...selectedServices.filter(service => services.includes(service))])];
@@ -69,13 +79,15 @@ const QuoteCart = (() => {
     const canCheckout = !legacyError && !cart.services.length && compatible && resolved.length > 0 && resolved.length <= 30 && new Set(cart.items.map(item=>item.productId)).size === cart.items.length && resolved.every(row => eligible(row.product) && Number.isInteger(row.item.quantity) && row.item.quantity >= 1 && row.item.quantity <= 99);
     const hasAed = resolved.some(row => row.product && (row.product.installation_group === 'aed' || AedCatalog.build([row.product]).aeds.length));
     const installBlock = hasAed ? '<div class="card" id="install-offer"><h2>Free installation</h2><p>Optional for an AED shipping within Southwestern Ontario. AED pad serial numbers are recorded on site at installation. Shipping is a placeholder flat rate of $19.99 CAD per order, added at checkout. Tax is not calculated yet.</p><div class="form-grid"><div class="field"><label for="install-line1">Shipping address</label><input id="install-line1" autocomplete="address-line1"></div><div class="field"><label for="install-city">City</label><input id="install-city"></div><div class="field"><label for="install-province">Province</label><input id="install-province" value="ON"></div><div class="field"><label for="install-postal">Postal code</label><input id="install-postal" placeholder="N6A 1A1"></div></div><div id="install-choice" hidden><label><input type="checkbox" id="install-requested"> <strong>Free installation</strong></label><p id="install-copy"></p></div></div>' : '';
+    const hasCourse = resolved.some(row => isRedCrossCourse(row.product));
     const rows = cart.items.map((item, index) => {
       const product = catalog.find(entry => entry.id === item.productId);
       const sku = product && AedCatalog.partNumber(product);
-      return '<tr><td>'+esc(product?.name || 'Product no longer available')+(sku?'<br><small>Manufacturer part: '+esc(sku)+'</small>':'')+'</td><td><label>Quantity <input type="number" min="1" max="99" value="'+esc(item.quantity)+'" data-quote-quantity="'+index+'"></label></td><td><button class="btn secondary" type="button" data-quote-remove="'+index+'">Remove</button></td></tr>';
+      const course = isRedCrossCourse(product);
+      return '<tr><td>'+esc(product?.name || 'Product no longer available')+(sku?'<br><small>Manufacturer part: '+esc(sku)+'</small>':'')+(course?'<div id="crc-seats-'+index+'">'+participantFields(index, item.quantity, item.participants)+'</div>':'')+'</td><td><label>'+(course?'Seats':'Quantity')+' <input type="number" min="1" max="99" value="'+esc(item.quantity)+'" data-quote-quantity="'+index+'"></label></td><td><button class="btn secondary" type="button" data-quote-remove="'+index+'">Remove</button></td></tr>';
     }).join('');
     const selectedServices = cart.services.length ? '<fieldset><legend>Selected services</legend>'+cart.services.map(service=>'<label><input type="checkbox" data-quote-service value="'+esc(service)+'" checked> '+esc(service)+'</label>').join(' ')+'</fieldset>' : '';
-    return hero('Cart','Review your selections and request a quote.','Contact Us')+'<section class="section"><div id="quote-cart-notice" role="status">'+(notice?'<p class="notice">'+esc(notice)+'</p>':'')+(legacyError?'<p class="notice" role="alert">'+esc(legacyError)+' Your previous cart has been preserved on this device.</p>':'')+'</div>'+(cart.items.length?'<div class="table-wrap"><table><thead><tr><th>Product</th><th>Quantity</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+selectedServices+(canCheckout?'<p>Verified subtotal: <strong>'+money(resolved.reduce((sum,row)=>sum+row.product.amount*row.item.quantity,0))+'</strong></p><button class="btn" type="button" data-unified-checkout>Checkout</button><div id="unified-checkout-message" role="status"></div>':'<p>Pricing, availability and delivery will be confirmed in your quote.</p>')+installBlock+'<form id="quote-cart-form" class="card"><h2>Request a Quote</h2><div class="form-grid"><div class="field"><label for="qc-name">Name</label><input id="qc-name" name="name" required maxlength="150"></div><div class="field"><label for="qc-org">Organization</label><input id="qc-org" name="organization" maxlength="150"></div><div class="field"><label for="qc-email">Email</label><input id="qc-email" name="email" type="email" required maxlength="254"></div><div class="field"><label for="qc-phone">Phone</label><input id="qc-phone" name="phone" type="tel" maxlength="50"></div><div class="field full"><label for="qc-location">Delivery location</label><input id="qc-location" name="deliveryLocation" maxlength="200"></div><div class="field full"><label for="qc-message">Additional instructions</label><textarea id="qc-message" name="message" maxlength="2000"></textarea></div></div><button class="btn" type="submit">Submit Quote Request</button><div id="quote-cart-message" role="status"></div></form>':'<p>Your cart is empty.</p>')+'<div class="actions"><a class="btn secondary" href="/shop-equipment" data-link>Continue Shopping</a></div></section>';
+    return hero('Cart','Review your selections and request a quote.','Contact Us')+'<section class="section"><div id="quote-cart-notice" role="status">'+(notice?'<p class="notice">'+esc(notice)+'</p>':'')+(legacyError?'<p class="notice" role="alert">'+esc(legacyError)+' Your previous cart has been preserved on this device.</p>':'')+'</div>'+(hasCourse?'<p>Online courses are non-refundable.</p>':'')+(cart.items.length?'<div class="table-wrap"><table><thead><tr><th>Product</th><th>Quantity</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+selectedServices+(canCheckout?'<p>Verified subtotal: <strong>'+money(resolved.reduce((sum,row)=>sum+row.product.amount*row.item.quantity,0))+'</strong></p><button class="btn" type="button" data-unified-checkout>Checkout</button><div id="unified-checkout-message" role="status"></div>':'<p>Pricing, availability and delivery will be confirmed in your quote.</p>')+installBlock+'<form id="quote-cart-form" class="card"><h2>Request a Quote</h2><div class="form-grid"><div class="field"><label for="qc-name">Name</label><input id="qc-name" name="name" required maxlength="150"></div><div class="field"><label for="qc-org">Organization</label><input id="qc-org" name="organization" maxlength="150"></div><div class="field"><label for="qc-email">Email</label><input id="qc-email" name="email" type="email" required maxlength="254"></div><div class="field"><label for="qc-phone">Phone</label><input id="qc-phone" name="phone" type="tel" maxlength="50"></div><div class="field full"><label for="qc-location">Delivery location</label><input id="qc-location" name="deliveryLocation" maxlength="200"></div><div class="field full"><label for="qc-message">Additional instructions</label><textarea id="qc-message" name="message" maxlength="2000"></textarea></div></div><button class="btn" type="submit">Submit Quote Request</button><div id="quote-cart-message" role="status"></div></form>':'<p>Your cart is empty.</p>')+'<div class="actions"><a class="btn secondary" href="/shop-equipment" data-link>Continue Shopping</a></div></section>';
   }
   async function refreshInstallation() {
     const choice = document.getElementById('install-choice');
@@ -128,6 +140,20 @@ const QuoteCart = (() => {
     } catch (error) { setMessage('unified-checkout-message','<p class="notice" role="alert">'+esc(error.message)+'</p>'); }
     finally { busy = false; button.disabled = false; }
   });
+  document.addEventListener('input', event => {
+    if (!event.target.matches || !event.target.matches('[data-crc-name], [data-crc-email]')) return;
+    const cart = read();
+    const index = Number(event.target.dataset.crcName || event.target.dataset.crcEmail);
+    const seat = Number(event.target.dataset.crcSeat);
+    const item = cart.items[index];
+    if (!item) return;
+    if (!Array.isArray(item.participants)) item.participants = [];
+    while (item.participants.length <= seat) item.participants.push({ name:'', email:'' });
+    if (event.target.matches('[data-crc-name]')) item.participants[seat].name = event.target.value;
+    else item.participants[seat].email = event.target.value;
+    cart.requestId = '';
+    write(cart);
+  });
   document.addEventListener('change', event => {
     if (busy) return;
     if (event.target.matches('[data-quote-service]')) {
@@ -139,7 +165,13 @@ const QuoteCart = (() => {
     if (event.target.matches('#install-province, #install-postal, #install-line1, #install-city')) { refreshInstallation(); return; }
     if (!event.target.matches('[data-quote-quantity]')) return;
     const cart = read(), index = Number(event.target.dataset.quoteQuantity), quantity = Number(event.target.value);
-    if (cart.items[index] && Number.isInteger(quantity) && quantity >= 1 && quantity <= 99) { cart.items[index].quantity = quantity; cart.requestId = ''; write(cart); }
+    if (cart.items[index] && Number.isInteger(quantity) && quantity >= 1 && quantity <= 99) {
+      cart.items[index].quantity = quantity;
+      cart.requestId = '';
+      write(cart);
+      const seats = document.getElementById('crc-seats-' + index);
+      if (seats) seats.innerHTML = participantFields(index, quantity, cart.items[index].participants);
+    }
     else if (cart.items[index]) event.target.value = cart.items[index].quantity;
   });
   document.addEventListener('submit', async event => {
@@ -153,6 +185,12 @@ const QuoteCart = (() => {
       const cart = read();
       if (legacyError) throw new Error('Please resolve the previous cart before submitting.');
       if (!cart.items.length) throw new Error('Your cart is empty.');
+      for (const item of cart.items) {
+        const product = products().find(entry => entry.id === item.productId);
+        if (!isRedCrossCourse(product)) continue;
+        const people = Array.isArray(item.participants) ? item.participants : [];
+        if (people.length !== item.quantity || people.some(person => !String(person.name || '').trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(person.email || '').trim()))) throw new Error('Enter a name and email for each course seat.');
+      }
       if (!cart.requestId) { cart.requestId = crypto.randomUUID(); write(cart); }
       const data = Object.fromEntries(new FormData(event.target));
       const response = await fetch('/api/quote-request', { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ ...data, serviceInterest:'Equipment', requestId:cart.requestId, quoteCart:{ items:cart.items, services:cart.services } }) });
