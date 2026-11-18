@@ -19,12 +19,31 @@ const AedCatalog = (() => {
     const entry = product && registry[product.id];
     return entry && entry.name === product.name ? entry : null;
   }
+  function sheetApi() {
+    if (typeof require === 'function') {
+      try { return require('./lib/aed-sheet-compatibility'); } catch (error) { return null; }
+    }
+    return typeof AedSheetCompatibility !== 'undefined' ? AedSheetCompatibility : null;
+  }
   function compatible(aed, accessory, registry = bindings) {
     const device = binding(aed, registry), part = binding(accessory, registry);
-    return !!(device && part && (part.kind === 'universal' && Array.isArray(part.devices) && part.devices.includes(device.model) || relationships.some(item => item.device === device.model && item.part === part.model)));
+    const reviewed = !!(device && part && (part.kind === 'universal' && Array.isArray(part.devices) && part.devices.includes(device.model) || relationships.some(item => item.device === device.model && item.part === part.model)));
+    if (reviewed) return true;
+    if (registry !== bindings) return false;
+    const sheet = sheetApi();
+    return !!(sheet && sheet.sheetCompatible(aed, accessory));
   }
-  function partNumber(product) { const entry = binding(product); return entry && entry.kind ? entry.model : ''; }
+  function partNumber(product) {
+    const entry = binding(product);
+    if (entry && entry.kind) return entry.model;
+    return product && product.part_number ? String(product.part_number) : '';
+  }
   function accessoryKind(product) { const entry = binding(product); return entry && entry.kind || ''; }
+  function exclusiveGroup(product) {
+    if (product && product.exclusive_group) return product.exclusive_group;
+    const sheet = sheetApi();
+    return sheet ? sheet.exclusiveGroup(product) : '';
+  }
   const accessoryWords = /\b(pads?|electrodes?|batter(?:y|ies)|cabinets?|brackets?|signs?|cases?|kits?|accessor(?:y|ies))\b/i;
   const nonDeviceWords = /\b(trainers?|training|deposit|program|service|orientation)\b/i;
   function build(products) {
@@ -36,7 +55,7 @@ const AedCatalog = (() => {
       if (!isAccessory && (nonDeviceWords.test(text) || !/\baed\b/i.test(String(product.name || '')))) continue;
       const amount = Number(product.amount);
       const price = product.price_verified === true && product.mode === 'buy_now' && Number.isSafeInteger(amount) && amount > 0 ? amount : null;
-      const item = { id: product.id, name: product.name || '', description: product.description || '', image: product.image || '', mode: product.mode, price, type: isAccessory ? 'accessory' : 'aed' };
+      const item = { id: product.id, name: product.name || '', description: product.description || '', image: product.image || '', mode: product.mode, price, type: isAccessory ? 'accessory' : 'aed', part_number: partNumber(product), exclusive_group: isAccessory ? exclusiveGroup(product) : '' };
       (isAccessory ? accessories : aeds).push(item);
     }
     return { source: 'catalog', aeds, accessories };
@@ -48,6 +67,6 @@ const AedCatalog = (() => {
   function summary(items) {
     return { knownSubtotal: items.reduce((total, item) => total + (item.price == null ? 0 : item.price * item.quantity), 0), needsQuote: !items.length || items.some(item => item.price == null) };
   }
-  return { build, quantity, summary, compatible, partNumber, accessoryKind, relationships };
+  return { build, quantity, summary, compatible, partNumber, accessoryKind, exclusiveGroup, relationships };
 })();
 if (typeof module !== 'undefined') module.exports = AedCatalog;

@@ -18,6 +18,7 @@ const files = [
   'app.js',
   'expansion.js',
   'supplier-admin.js',
+  'aed-sheet.js',
   'aed-catalog.js',
   'quote-cart.js',
   'robots.txt',
