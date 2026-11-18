@@ -21,7 +21,7 @@ const { getProductList } = require('../lib/content');
   assert.ok(firstAid.every(product => product.mode === 'request_quote' && product.inventory_status === 'quote_required'));
   const existing = [{ id: 'saved', category: 'AED Sales', name: 'Saved product', enabled: true }];
   const db = { from: () => ({ select: () => ({ order: async () => ({ data: existing, error: null }) }) }) };
-  assert.deepEqual((await getProductList(db)).map(product => product.id), ['saved']);
+  assert.deepEqual((await getProductList(db)).map(product => product.id), ['saved', 'soteria-course-first-responder', 'soteria-course-emr', 'soteria-course-oxygen-airways']);
   process.env.NODE_ENV = 'production';
   delete process.env.ENABLE_DEMO_CONTENT;
   delete process.env.PUBLIC_SITE_MODE;
