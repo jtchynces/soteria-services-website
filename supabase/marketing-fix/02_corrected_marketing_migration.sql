@@ -1,7 +1,8 @@
 -- Corrected Soteria-Marketing-only migration
 -- Purpose: repair/normalize the marketing/e-commerce website database only.
--- Does not use Soteria Pulse tables or columns.
 -- Safe for partial/legacy marketing tables: uses create-if-missing and add-column-if-missing.
+-- profiles.user_id and the pending defaults match the shared Pulse profile shape.
+-- Run supabase_pending_signup_fix.sql first. Run this file afterward only if it is still needed.
 
 create extension if not exists pgcrypto;
 
@@ -18,22 +19,29 @@ alter table public.roles add column if not exists created_at timestamptz not nul
 insert into public.roles (name, description)
 values
   ('administrator', 'Full marketing website administration access.'),
-  ('editor', 'Can manage marketing website content, products, services, pricing, images, quote requests, and orders.')
+  ('editor', 'Can manage marketing website content, products, services, pricing, images, quote requests, and orders.'),
+  ('Pending User', 'No access. An administrator must assign a role before this account can work in the website or Soteria Pulse.'),
+  ('pending_user', 'No access. An administrator must assign a role before this account can work in the website or Soteria Pulse.'),
+  ('pending', 'No access. An administrator must assign a role before this account can work in the website or Soteria Pulse.')
 on conflict (name) do update set description = excluded.description;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
+  user_id uuid references auth.users(id) on delete cascade,
   email text not null unique,
   full_name text not null default '',
-  role text not null default 'editor',
+  role text not null default 'Pending User',
+  status text not null default 'Pending',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 alter table public.profiles add column if not exists id uuid;
+alter table public.profiles add column if not exists user_id uuid references auth.users(id) on delete cascade;
 alter table public.profiles add column if not exists email text;
 alter table public.profiles add column if not exists full_name text not null default '';
-alter table public.profiles add column if not exists role text not null default 'editor';
+alter table public.profiles add column if not exists role text not null default 'Pending User';
+alter table public.profiles add column if not exists status text not null default 'Pending';
 alter table public.profiles add column if not exists created_at timestamptz not null default now();
 alter table public.profiles add column if not exists updated_at timestamptz not null default now();
 
@@ -44,30 +52,97 @@ where p.id is null
   and p.email is not null
   and lower(p.email) = lower(u.email);
 
-update public.profiles
-set role = 'editor'
-where role is null or role not in ('administrator', 'editor');
+-- Do not assign editor to existing rows. Pending User and any other
+-- non-editor role must stay unchanged when this file is re-run.
 
 create unique index if not exists profiles_id_uidx on public.profiles(id) where id is not null;
+create unique index if not exists profiles_user_id_key on public.profiles(user_id);
 create unique index if not exists profiles_email_uidx on public.profiles(lower(email)) where email is not null;
 create index if not exists profiles_role_idx on public.profiles(role);
 
 create table if not exists public.admin_profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   profile_id uuid references public.profiles(id) on delete cascade,
-  role text not null default 'editor',
+  role text not null default 'pending',
+  status text not null default 'pending',
   display_name text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-alter table public.admin_profiles add column if not exists user_id uuid;
+alter table public.admin_profiles add column if not exists user_id uuid references auth.users(id) on delete cascade;
 alter table public.admin_profiles add column if not exists profile_id uuid;
-alter table public.admin_profiles add column if not exists role text not null default 'editor';
+alter table public.admin_profiles add column if not exists role text not null default 'pending';
+alter table public.admin_profiles add column if not exists status text not null default 'pending';
 alter table public.admin_profiles add column if not exists display_name text not null default '';
 alter table public.admin_profiles add column if not exists created_at timestamptz not null default now();
 alter table public.admin_profiles add column if not exists updated_at timestamptz not null default now();
 
+-- Change defaults for future inserts only. Skip a default the live check
+-- constraint would reject. Do not update existing rows.
+do $$
+declare
+  role_checks text;
+  status_checks text;
+begin
+  if to_regclass('public.profiles') is not null then
+    select string_agg(pg_get_constraintdef(con.oid), ' ')
+      into role_checks
+    from pg_constraint con
+    join pg_class rel on rel.oid = con.conrelid
+    join pg_namespace nsp on nsp.oid = rel.relnamespace
+    where nsp.nspname = 'public'
+      and rel.relname = 'profiles'
+      and con.contype = 'c'
+      and pg_get_constraintdef(con.oid) ~* '\mrole\M';
+    if role_checks is null or role_checks ~* 'Pending User' then
+      execute 'alter table public.profiles alter column role set default ''Pending User''';
+    end if;
+
+    select string_agg(pg_get_constraintdef(con.oid), ' ')
+      into status_checks
+    from pg_constraint con
+    join pg_class rel on rel.oid = con.conrelid
+    join pg_namespace nsp on nsp.oid = rel.relnamespace
+    where nsp.nspname = 'public'
+      and rel.relname = 'profiles'
+      and con.contype = 'c'
+      and pg_get_constraintdef(con.oid) ~* '\mstatus\M';
+    if status_checks is null or status_checks ~* 'Pending' then
+      execute 'alter table public.profiles alter column status set default ''Pending''';
+    end if;
+  end if;
+
+  if to_regclass('public.admin_profiles') is not null then
+    select string_agg(pg_get_constraintdef(con.oid), ' ')
+      into role_checks
+    from pg_constraint con
+    join pg_class rel on rel.oid = con.conrelid
+    join pg_namespace nsp on nsp.oid = rel.relnamespace
+    where nsp.nspname = 'public'
+      and rel.relname = 'admin_profiles'
+      and con.contype = 'c'
+      and pg_get_constraintdef(con.oid) ~* '\mrole\M';
+    if role_checks is null or role_checks ~* 'pending' then
+      execute 'alter table public.admin_profiles alter column role set default ''pending''';
+    end if;
+
+    select string_agg(pg_get_constraintdef(con.oid), ' ')
+      into status_checks
+    from pg_constraint con
+    join pg_class rel on rel.oid = con.conrelid
+    join pg_namespace nsp on nsp.oid = rel.relnamespace
+    where nsp.nspname = 'public'
+      and rel.relname = 'admin_profiles'
+      and con.contype = 'c'
+      and pg_get_constraintdef(con.oid) ~* '\mstatus\M';
+    if status_checks is null or status_checks ~* 'pending' then
+      execute 'alter table public.admin_profiles alter column status set default ''pending''';
+    end if;
+  end if;
+end $$;
+
+create unique index if not exists admin_profiles_user_id_key on public.admin_profiles(user_id);
 create unique index if not exists admin_profiles_user_id_uidx on public.admin_profiles(user_id) where user_id is not null;
 create index if not exists admin_profiles_role_idx on public.admin_profiles(role);
 
@@ -313,35 +388,12 @@ create trigger orders_touch_marketing_updated_at before update on public.orders 
 drop trigger if exists admin_profiles_touch_marketing_updated_at on public.admin_profiles;
 create trigger admin_profiles_touch_marketing_updated_at before update on public.admin_profiles for each row execute function public.touch_marketing_updated_at();
 
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  insert into public.profiles (id, email, full_name, role)
-  values (
-    new.id,
-    lower(coalesce(new.email, '')),
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
-    case
-      when new.raw_user_meta_data->>'role' in ('administrator', 'editor') then new.raw_user_meta_data->>'role'
-      else 'editor'
-    end
-  )
-  on conflict (id) do update set
-    email = excluded.email,
-    full_name = coalesce(nullif(excluded.full_name, ''), public.profiles.full_name),
-    role = excluded.role;
-  return new;
-end;
-$$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
+-- handle_new_user and on_auth_user_created live in the shared Pulse script
+-- supabase_pending_signup_fix.sql (soteria-pulse PR #3). That function
+-- creates role 'Pending User' and status 'Pending', never reads
+-- raw_user_meta_data.role, and does not overwrite role on conflict.
+-- Do not recreate the function or trigger here. Re-running this file must
+-- not drop or replace the trigger that script installed.
 
 alter table public.roles enable row level security;
 alter table public.profiles enable row level security;
@@ -357,6 +409,7 @@ drop policy if exists "marketing_roles_read" on public.roles;
 drop policy if exists "marketing_profiles_self_read" on public.profiles;
 drop policy if exists "marketing_profiles_admin_read" on public.profiles;
 drop policy if exists "marketing_profiles_admin_write" on public.profiles;
+drop policy if exists "Users can update own basic profile" on public.profiles;
 drop policy if exists "marketing_admin_profiles_self_or_admin_read" on public.admin_profiles;
 drop policy if exists "marketing_admin_profiles_admin_write" on public.admin_profiles;
 drop policy if exists "marketing_site_settings_public_read" on public.site_settings;
