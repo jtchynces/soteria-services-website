@@ -131,6 +131,14 @@ Run `npm run build`, `node scripts/test-local-preview.js`, `node scripts/test-co
 
 Product records include `tax_behavior`: `taxable`, `non_taxable`, or `confirm_manually`. Stripe Tax is not enabled automatically. Tax handling should be reviewed before full e-commerce launch.
 
+## Priced SOS catalogue
+
+Codex migrations 005–011 stay as they are. They do not change `handle_new_user` or profile policies. The public priced catalogue is `config/sos-catalogue.json` (no owner cost). Local preview merges it onto the quote catalogue. Displayed AED prices are MAP, Prestan prices are Canadian MSRP/MAP, and other SOS goods use the sostor.com price. Owner cost stays in the gitignored `data/internal` file and in the administrator supplier-review screen.
+
+`config/shipping.js` is the only shipping rule file. The active rule is a placeholder flat $19.99 CAD per order. `config/installation.js` offers free AED installation for Southwestern Ontario postal codes starting with N. Kit installation is off.
+
+Set `ENABLE_STRIPE_SANDBOX_CHECKOUT=true` and `STRIPE_SECRET_KEY=sk_test_...` before test checkout. Live keys are refused. Order email is sent only after a signature-verified `checkout.session.completed` webhook, to `ORDER_NOTIFICATION_EMAIL` or `josh@soteriaservices.net`.
+
 ## Deploy to Vercel
 
 1. Push the project to Git.

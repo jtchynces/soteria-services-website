@@ -1,3 +1,10 @@
 dist/
 node_modules/
 work/
+.env
+.env.*
+!.env.example
+data/internal/
+data/source/
+data/cache/
+data/inquiries/

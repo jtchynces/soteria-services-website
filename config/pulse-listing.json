@@ -1,0 +1,68 @@
+{
+  "purchaseEnabled": false,
+  "title": "Soteria Pulse",
+  "positioning": "Soteria Pulse is a compliance service Soteria delivers for your workplace using the Pulse platform. It is not self-serve software, and there is no client sign-up. Soteria uses Pulse to track your AEDs and equipment, keep inspection and training records, and prepare reports for you.",
+  "sections": [
+    {
+      "id": "aed-compliance",
+      "title": "AED compliance",
+      "emphasis": true,
+      "intro": "AED compliance is the main part of the service.",
+      "claims": [
+        {
+          "id": "aed-tracking",
+          "status": "current",
+          "text": "AED and equipment tracking, including pad and battery expiry dates. Soteria keeps these records for your workplace."
+        },
+        {
+          "id": "inspection-records",
+          "status": "current",
+          "text": "Inspection records. Soteria maintains the inspection record for your AEDs."
+        },
+        {
+          "id": "readiness-assessments",
+          "status": "current",
+          "text": "Readiness assessments and assessment visits. Soteria carries out the assessments and records them in Pulse."
+        }
+      ]
+    },
+    {
+      "id": "records-reports",
+      "title": "Training records and reports",
+      "emphasis": false,
+      "intro": "Soteria also keeps training records and prepares reports for you.",
+      "claims": [
+        {
+          "id": "training-records",
+          "status": "current",
+          "text": "Certification and first aid/CPR training record tracking. Soteria tracks these records for you."
+        },
+        {
+          "id": "pdf-reports",
+          "status": "current",
+          "text": "PDF compliance and executive reports. Soteria prepares the reports and shares them with you."
+        }
+      ]
+    },
+    {
+      "id": "coming-soon",
+      "title": "Coming soon",
+      "emphasis": false,
+      "intro": "",
+      "claims": [
+        {
+          "id": "expiry-reminders",
+          "status": "coming_soon",
+          "text": "Automated expiry reminders and notifications."
+        },
+        {
+          "id": "client-portal",
+          "status": "coming_soon",
+          "text": "A client portal."
+        }
+      ]
+    }
+  ],
+  "pricingNote": "Subscription pricing is not available yet. Request a demo and Soteria will follow up.",
+  "cta": "Request a demo"
+}

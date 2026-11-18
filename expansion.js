@@ -21,7 +21,8 @@ function businessInquiry(kind) {
   const fields = medical
     ? [['project','Project or event name'],['location','Location'],['dates','Dates'],['participants','Number of participants or workers'],['operations','Nature of operations and medical risks'],['hours','Coverage hours and staffing requirements'],['qualifications','Required medical qualifications'],['infrastructure','Existing medical infrastructure and evacuation arrangements']]
     : [['location','Training location'],['course','Requested course'],['participants','Number of participants'],['dates','Preferred dates'],['renewal','Certification renewal deadlines'],['requirements','Additional training requirements']];
-  return hero(medical?'Request Medical Coverage':'Corporate Training Inquiry', medical?'Tell us about your event or worksite.':'Plan workplace training for your team.', 'Contact Us') + '<section class="section"><form id="business-inquiry" class="card" data-kind="'+kind+'"><div class="form-grid"><div class="field"><label for="business-name">Contact name</label><input id="business-name" name="name" required></div><div class="field"><label for="business-org">Organization</label><input id="business-org" name="organization" required></div><div class="field"><label for="business-email">Email</label><input id="business-email" type="email" name="email" required></div><div class="field"><label for="business-phone">Phone</label><input id="business-phone" type="tel" name="phone" required></div>' + fields.map(([name,label])=>'<div class="field"><label for="business-'+name+'">'+label+'</label><input id="business-'+name+'" name="'+name+'"></div>').join('') + '</div><div class="actions"><button class="btn" type="submit">Submit Inquiry</button></div><div id="business-inquiry-message" role="status"></div></form></section>';
+  const serviceType = medical ? '<div class="field"><label for="business-serviceType">Service type</label><select id="business-serviceType" name="serviceType"><option>Event Medical</option><option>Remote Medical</option></select></div>' : '';
+  return hero(medical?'Request Medical Coverage':'Corporate Training Inquiry', medical?'Tell us about your event or worksite.':'Plan workplace training for your team.', 'Contact Us') + '<section class="section"><form id="business-inquiry" class="card" data-kind="'+kind+'"><div class="form-grid"><div class="field"><label for="business-name">Contact name</label><input id="business-name" name="name" required></div><div class="field"><label for="business-org">Organization</label><input id="business-org" name="organization" required></div><div class="field"><label for="business-email">Email</label><input id="business-email" type="email" name="email" required></div><div class="field"><label for="business-phone">Phone</label><input id="business-phone" type="tel" name="phone" required></div>' + serviceType + fields.map(([name,label])=>'<div class="field"><label for="business-'+name+'">'+label+'</label><input id="business-'+name+'" name="'+name+'"></div>').join('') + '</div><div class="actions"><button class="btn" type="submit">Submit Inquiry</button></div><div id="business-inquiry-message" role="status"></div></form></section>';
 }
 
 function equipmentCategory(category) { return category === 'Training Materials' || !/training|course|pulse|event|consulting|assessment|mask fit/i.test(category || ''); }
@@ -60,17 +61,22 @@ function soteriaReady() {
   return hero('Soteria Ready','Preparedness services tailored to your locations and equipment.','Contact Us')+'<section class="section"><div class="grid two">'+tiers.map(tier=>'<article><h2>'+esc(tier[0])+'</h2><p>'+esc(tier[1])+'</p></article>').join('')+'</div><p>Scope, pricing and service arrangements are confirmed in writing. Services do not guarantee legal compliance.</p><form id="ready-inquiry" class="card"><h2>Request a Soteria Ready Quote</h2><div class="form-grid"><div class="field"><label for="ready-tier">Package</label><select id="ready-tier" name="tier">'+tiers.map(tier=>'<option>'+esc(tier[0])+'</option>').join('')+'</select></div>'+[['aeds','Number of AEDs'],['kits','Number of first aid kits'],['buildings','Number of buildings'],['locations','Number of locations']].map(([name,label])=>'<div class="field"><label for="ready-'+name+'">'+label+'</label><input id="ready-'+name+'" name="'+name+'" type="number" min="0" max="10000" value="0"></div>').join('')+'<div class="field"><label for="ready-location">Service location</label><input id="ready-location" name="location" required maxlength="200"></div><div class="field"><label for="ready-name">Name</label><input id="ready-name" name="name" required maxlength="150"></div><div class="field"><label for="ready-organization">Organization</label><input id="ready-organization" name="organization" maxlength="150"></div><div class="field"><label for="ready-email">Email</label><input id="ready-email" name="email" type="email" required maxlength="254"></div><div class="field"><label for="ready-phone">Phone</label><input id="ready-phone" name="phone" type="tel" maxlength="50"></div><div class="field full"><label for="ready-needs">Additional needs</label><textarea id="ready-needs" name="needs" maxlength="2000"></textarea></div></div><fieldset><legend>Additional equipment and preparedness</legend>'+equipment.map((item,index)=>'<label><input type="checkbox" name="equipment" value="'+esc(item)+'"> '+esc(item)+'</label>').join(' ')+'</fieldset><button class="btn" type="submit">Request Quote</button><div id="ready-message" role="status"></div></form></section>';
 }
 
+function pulseListingPage() {
+  return hero('Soteria Pulse', 'Soteria Pulse is a compliance service Soteria delivers for your workplace using the Pulse platform. It is not self-serve software, and there is no client sign-up. Soteria uses Pulse to track your AEDs and equipment, keep inspection and training records, and prepare reports for you.', 'Request a demo') + '<section class="section pulse-listing"><article class="card pulse-highlight"><h2>AED compliance</h2><p>AED compliance is the main part of the service.</p><ul><li>AED and equipment tracking, including pad and battery expiry dates. Soteria keeps these records for your workplace.</li><li>Inspection records. Soteria maintains the inspection record for your AEDs.</li><li>Readiness assessments and assessment visits. Soteria carries out the assessments and records them in Pulse.</li></ul></article><article class="card"><h2>Training records and reports</h2><ul><li>Certification and first aid/CPR training record tracking. Soteria tracks these records for you.</li><li>PDF compliance and executive reports. Soteria prepares the reports and shares them with you.</li></ul></article><article class="card"><h2>Coming soon</h2><ul><li>Automated expiry reminders and notifications.</li><li>A client portal.</li></ul></article><p class="notice">Subscription pricing is not available yet. Request a demo and Soteria will follow up.</p><form class="card" id="pulse-demo-form"><h2>Request a demo</h2><div class="form-grid"><div class="field"><label for="pulse-name">Name</label><input id="pulse-name" name="name" required maxlength="200"></div><div class="field"><label for="pulse-org">Organization</label><input id="pulse-org" name="organization" required maxlength="200"></div><div class="field"><label for="pulse-email">Email</label><input id="pulse-email" name="email" type="email" required maxlength="320"></div><div class="field"><label for="pulse-phone">Phone</label><input id="pulse-phone" name="phone" maxlength="50"></div><div class="field"><label for="pulse-sites">Number of sites</label><input id="pulse-sites" name="sites" inputmode="numeric"></div><div class="field"><label for="pulse-aeds">Number of AEDs</label><input id="pulse-aeds" name="aeds" inputmode="numeric"></div><div class="field full"><label for="pulse-message">Message</label><textarea id="pulse-message" name="message" maxlength="5000"></textarea></div></div><button class="btn" type="submit">Request a demo</button><div id="pulse-demo-message" role="status"></div></form></section>';
+}
+
 const expansionRoutes = {
   '/admin/supplier': () => supplierAdminPage(),
   '/shop-equipment': shopEquipment,
   '/courses': trainingCatalog,
   '/online-courses': onlineCourses,
   '/soteria-ready': soteriaReady,
+  '/soteria-pulse': pulseListingPage,
   '/medical-services': () => expansionPage('Medical Services', 'Medical coverage inquiries for events, industrial operations and remote worksites.', [
     ['Event coverage', content('event-medical-services').body || 'Coverage can be discussed for festivals, sporting events, concerts, community gatherings and corporate events.'],
-    ['Industrial and remote worksites', 'Discuss on-site coverage, rotational medical staffing and equipment planning for construction, mining and northern operations.'],
-    ['Communities and response', 'Inquiries from First Nations, communities and emergency response organizations may include medical infrastructure, standby and evacuation coordination.'],
-    ['Service arrangements', 'Services depend on qualified personnel, scope of practice, licensing, operational capacity and contractual arrangements.']
+    ['Remote medical coverage', 'Request remote medical coverage for a site away from your main workplace. Share the location, dates and crew size. Sending a request does not confirm that coverage is available.'],
+    ['What to include', 'Tell Soteria the site, the dates and how many people are expected. Soteria will follow up.'],
+    ['Service arrangements', 'Availability and scope are confirmed by Soteria after the request. This page does not confirm coverage.']
   ], 'Request Medical Coverage', '/medical-coverage-request'),
   '/emergency-management': () => expansionPage('Emergency Management', 'Practical preparedness and response planning for organizations and communities.', [
     ['Planning and assessment', 'Discuss emergency plans, hazard and risk assessments, business continuity and preparedness program development.'],
@@ -139,6 +145,21 @@ document.addEventListener('change', event => {
 });
 
 document.addEventListener('submit', async event => {
+  if (event.target.id === 'pulse-demo-form') {
+    event.preventDefault();
+    const form = event.target, data = Object.fromEntries(new FormData(form)), button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      const response = await fetch('/api/quote-request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...data, serviceInterest: 'Soteria Pulse demo', message: ['Sites: ' + (data.sites || ''), 'AEDs: ' + (data.aeds || ''), data.message || ''].filter(Boolean).join('\n') }) });
+      const result = await jsonResponse(response);
+      if (!response.ok) throw new Error(result.error || 'Your request could not be saved.');
+      setMessage('pulse-demo-message', '<p class="notice">Request received. Soteria will follow up.</p>');
+      form.reset();
+    } catch (error) {
+      setMessage('pulse-demo-message', '<p class="notice" role="alert">' + esc(error.message || 'Your request could not be saved.') + '</p>');
+    } finally { button.disabled = false; }
+    return;
+  }
   if (event.target.id !== 'business-inquiry') return;
   event.preventDefault();
   const form = event.target, data = Object.fromEntries(new FormData(form)), button = form.querySelector('button[type="submit"]');
