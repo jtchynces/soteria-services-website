@@ -70,7 +70,7 @@ for (const [id, name, language, amount] of expected) {
   assert.equal(course.cost_cents, undefined);
   assert.equal(course.tp, undefined);
   assert.equal(course.tp_cents, undefined);
-  assert.equal(sections.isTrainingProduct(course), true);
+  assert.equal(sections.isTrainingProduct(course), false);
   assert.equal(sections.isAedPageProduct(course), false);
   assert.equal(sections.isEquipmentProduct(course), false);
 }
@@ -88,7 +88,7 @@ const db = { from: () => ({ select: () => ({ order: async () => ({ data: [{ id: 
   assert.equal(whmis.enabled, true);
   assert.equal(whmis.cost_cents, undefined);
   assert.equal(whmis.tp_cents, undefined);
-  assert.ok(listed.every((product) => sections.isTrainingProduct(product) && !sections.isAedPageProduct(product) && !sections.isEquipmentProduct(product)));
+  assert.ok(listed.every((product) => !sections.isTrainingProduct(product) && !sections.isAedPageProduct(product) && !sections.isEquipmentProduct(product)));
   delete process.env.SOS_PRICED_CATALOGUE;
   assert.equal((await getProductList(db)).some((product) => product.tag === 'Canadian Red Cross'), false);
 
@@ -112,19 +112,23 @@ const db = { from: () => ({ select: () => ({ order: async () => ({ data: [{ id: 
   };
   vm.createContext(context);
   vm.runInContext(fs.readFileSync('catalogue-sections.js', 'utf8') + '\n' + fs.readFileSync('expansion.js', 'utf8') + '\nthis.routes = expansionRoutes;', context);
-  for (const path of ['/online-courses', '/courses']) {
-    const html = context.routes[path]();
-    assert.match(html, /Canadian Red Cross Online Courses/);
-    assert.match(html, /offered by Soteria Services as an authorized reseller/);
-    assert.match(html, /Online courses are non-refundable/);
-    assert.match(html, /After purchase, you'll receive an email with instructions to log in to your course/);
-    assert.doesNotMatch(html, /<img/);
-    for (const [, name, language, amount] of expected) {
-      assert.match(html, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      assert.match(html, new RegExp(language.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      assert.match(html, new RegExp((amount / 100).toFixed(2)));
-    }
+  const online = context.routes['/online-courses']();
+  assert.match(online, /Canadian Red Cross Online Courses/);
+  assert.match(online, /offered by Soteria Services as an authorized reseller/);
+  assert.match(online, /Online courses are non-refundable/);
+  assert.match(online, /After purchase, you'll receive an email with instructions to log in to your course/);
+  assert.doesNotMatch(online, /<img/);
+  for (const [, name, language, amount] of expected) {
+    assert.match(online, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(online, new RegExp(language.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.match(online, new RegExp((amount / 100).toFixed(2)));
   }
+  const trainingPage = context.routes['/courses']();
+  for (const [, name] of expected) assert.doesNotMatch(trainingPage, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  const cat = JSON.parse(fs.readFileSync('config/sos-catalogue.json', 'utf8'));
+  const supplier = cat.products.filter((product) => product.category === 'Supplier training courses (SOS)');
+  assert.equal(supplier.length, 10);
+  assert.ok(supplier.every((product) => !sections.isTrainingProduct(product) && !sections.isAedPageProduct(product) && !sections.isEquipmentProduct(product)));
   const detailSource = fs.readFileSync('app.js', 'utf8');
   assert.match(detailSource, /After purchase, you\\'ll receive an email with instructions to log in to your course/);
   assert.match(fs.readFileSync('quote-cart.js', 'utf8'), /Online courses are non-refundable/);

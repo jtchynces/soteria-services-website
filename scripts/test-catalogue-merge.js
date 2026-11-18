@@ -94,11 +94,10 @@ function counts(list) {
   assert.ok(grouped.aed.some((product) => product.category === 'AED Pads & Batteries'));
   assert.ok(grouped.aed.some((product) => product.category === 'AED Accessories'));
   assert.ok(grouped.aed.some((product) => product.category === 'AED Sales'));
-  const trainingCategories = ['First Aid Training', 'Supplier training courses (SOS)', 'Online Courses'];
-  assert.ok(grouped.training.length >= 10);
-  assert.ok(grouped.training.every((product) => trainingCategories.includes(product.category)));
+  assert.equal(grouped.training.length, 1);
+  assert.ok(grouped.training.every((product) => product.category === 'First Aid Training'));
   assert.ok(grouped.training.some((product) => product.id === 'db-course'));
-  assert.ok(!grouped.training.some((product) => product.category === 'Prestan Training Kits'));
+  assert.ok(!grouped.training.some((product) => product.category === 'Supplier training courses (SOS)' || product.tag === 'Canadian Red Cross'));
   for (const category of ['Prestan Manikins', 'Prestan AED Trainers', 'Prestan AED Trainer Parts', 'Prestan Training Kits', 'First aid kits', 'PPE', 'Workplace first aid supplies', 'PRESTAN Equipment']) {
     assert.ok(grouped.equipment.some((product) => product.category === category), category);
   }

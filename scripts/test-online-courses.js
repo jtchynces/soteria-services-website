@@ -12,7 +12,7 @@ const context = {
   fetch:async (url,options)=>{ sent=JSON.parse(options.body); return {ok:true}; }, jsonResponse:async()=>({}), setMessage:(id,value)=>{notice=value;}
 };
 vm.createContext(context);
-vm.runInContext(fs.readFileSync('expansion.js','utf8')+'\nthis.routes=expansionRoutes;',context);
+vm.runInContext(fs.readFileSync('catalogue-sections.js','utf8')+'\n'+fs.readFileSync('expansion.js','utf8')+'\nthis.routes=expansionRoutes;',context);
 assert.match(context.routes['/online-courses'](), /First Aid for Dogs & Cats/);
 const button={disabled:false}, form={id:'online-course-inquiry', values:{course:'crc-online-dogs-cats',language:'English',name:'Customer',email:'customer@valid.ca'}, querySelector:()=>button, reset(){}};
 (async()=>{
