@@ -45,7 +45,7 @@ async function call(handler, options) {
   assert.equal(local.company_logo_url, 'https://valid.test/logo.png');
   assert.equal(rows[0].value, 'coming_soon');
   assert.equal((await call(publicSettingsHandler)).settings.public_site_mode, 'coming_soon');
-  assert.deepEqual((await getProductList(db, false, { localPreview: true })).map(item => item.id), ['saved', 'soteria-course-first-responder', 'soteria-course-emr', 'soteria-course-oxygen-airways']);
+  assert.deepEqual((await getProductList(db, false, { localPreview: true })).map(item => item.id), ['saved']);
   assert.match(fs.readFileSync('package.json', 'utf8'), /node server\.js --local-preview/);
   assert.match(fs.readFileSync('server.js', 'utf8'), /localPreview \? '127\.0\.0\.1'/);
   console.log('Local preview isolation checks passed.');

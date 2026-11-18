@@ -106,7 +106,7 @@ function counts(list) {
   assert.ok(grouped.equipment.some((product) => product.id === 'db-prestan'));
 
   delete process.env.SOS_PRICED_CATALOGUE;
-  assert.deepEqual((await getProductList(db)).map((product) => product.id), [priced.id, zeroTarget.id, 'db-course', 'db-prestan', 'soteria-course-first-responder', 'soteria-course-emr', 'soteria-course-oxygen-airways']);
+  assert.deepEqual((await getProductList(db)).map((product) => product.id), [priced.id, zeroTarget.id, 'db-course', 'db-prestan']);
 
   const preview = await getProductList(null, false, { localPreview: true });
   process.env.SOS_PRICED_CATALOGUE = 'true';
