@@ -1,6 +1,10 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/event-medical-services", "destination": "/medical-services", "permanent": true },
+    { "source": "/remote-medical-services", "destination": "/medical-services", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

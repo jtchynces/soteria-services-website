@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const line = fs.readFileSync('app.js', 'utf8').split(/\r?\n/).find(value => value.startsWith('function cart(){'));
+assert.ok(line);
+let cartItems = [{ id:'a', quantity:2, name:'Old name', price:1 }];
+let catalog = [{ id:'a', name:'Verified item', mode:'buy_now', amount:500, tax_behavior:'non_taxable', checkout_verified:true }];
+const context = { cartItems, loadCart(){}, products:() => catalog, hero:() => '', esc:x => String(x), money:x => '$' + (x/100).toFixed(2) };
+vm.createContext(context);
+vm.runInContext(line + '\nthis.renderCart = cart;', context);
+assert.match(context.renderCart(), /Checkout eligible/);
+assert.match(context.renderCart(), /\$10\.00/);
+assert.match(context.renderCart(), /data-cart-checkout/);
+catalog = [{ ...catalog[0], checkout_verified:false }];
+assert.match(context.renderCart(), /Quote required/);
+assert.doesNotMatch(context.renderCart(), /data-cart-checkout|\$10\.00/);
+console.log('Cart verification checks passed.');

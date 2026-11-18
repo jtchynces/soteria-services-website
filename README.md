@@ -2,6 +2,10 @@
 
 Launch-focused marketing website with Stripe Checkout support, quote request workflows, and Supabase-protected admin/editor pages.
 
+For the current expansion audit, prioritized implementation plan, outstanding launch work and deployment checklist, see [docs/expansion-audit.md](docs/expansion-audit.md). Changes on the development branch require review before deployment.
+
+For SOS supplier price reviews and the private import template, see [docs/supplier-review.md](docs/supplier-review.md).
+
 ## Required environment variables
 
 Copy `.env.example` and configure these values locally and in Vercel:
@@ -28,7 +32,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`. Restart the server after updating the code.
+
+`npm run dev` starts a localhost-only preview that displays the full website even when the saved `public_site_mode` is `coming_soon`. The override exists only in the response from this local server; it never updates Supabase or changes Vercel's production API. Admin routes still require authentication and the existing checkout restrictions remain in force. If Supabase is not configured, the preview displays the quote-only SOS catalog; when Supabase is configured, its product records remain authoritative. The separate `npm start` command does not enable the bypass.
 
 ## Build
 
@@ -41,7 +47,7 @@ The build validates required launch files, JavaScript syntax, Stripe dependencie
 ## Verify Stripe Checkout
 
 1. Use Stripe sandbox mode keys.
-2. Set `STRIPE_SECRET_KEY` and `SITE_URL`.
+2. Set `STRIPE_SECRET_KEY`, `SITE_URL`, and `ENABLE_STRIPE_SANDBOX_CHECKOUT=true` in an isolated test environment. Checkout remains blocked by default and live keys cannot create sessions on this branch.
 3. Run `npm run dev`.
 4. Click a Buy Now or Pay Deposit button.
 5. Use Stripe sandbox card `4242 4242 4242 4242` with any future expiry, CVC, and postal code.
@@ -99,15 +105,39 @@ The Forgot Password action uses Supabase Auth password reset email. Configure th
 
 Product edits, quote requests, orders, media records, services, and site settings are stored in Supabase tables when Supabase environment variables are configured. This preserves Shay's updates across deployments, browsers, devices, and future code updates.
 
+Published products set to `Request Quote` display “Price on request” rather than their internal numeric amount and cannot be added to the cart. Confirm product identity, supplier availability and resale authorization before enabling a product. The existing editor stores an unused zero amount for an unpriced quote item; zero is not a verified selling price. Supplier cost observations are administrator-only and use a separate private table; apply and review both supplier migrations in a development database before testing that access.
+
 Supabase is the production source of truth. Starter products and starter settings are not used when Supabase content storage is configured, even if a table is empty. Seed rows are guarded so they only populate a brand-new empty table and never overwrite existing records. Set `ENABLE_DEMO_CONTENT=true` only for an intentional local demo without Supabase content.
 
 ## AED configurator
 
-The AED Configurator loads from `config/aed-configurator.json` while inventory management is being prepared. Update that file to add AED models, accessories, prices, descriptions, images, availability, or enabled/disabled status. The frontend uses a `ProductProvider` abstraction, so `inventoryEnabled` can later switch the same interface to product records without redesigning the configurator.
+The AED Configurator derives its choices from the same product catalog as the storefront. It builds a quote with individual equipment, quantities, and optional installation, training, and Soteria Pulse inquiries. Accessory selection is fail-closed and validated again by the server. Two supplier catalog records are bound to reviewed manufacturer part numbers; see [docs/aed-compatibility.md](docs/aed-compatibility.md). Availability, tax, and delivery must also be confirmed in the quote. The configurator does not initiate checkout. When no Supabase client is configured, local development can preview the quote-only supplier catalog; this does not publish or write products to a database.
+
+The shared cart saves selections in the browser and submits product IDs and quantities for server-side resolution. The previous quote-cart URL remains an alias, and legacy payment-cart items are copied into the shared cart without deleting their original local storage. Apply and review `supabase/migrations/010_quote_request_idempotency.sql` in the development database before testing cart quote submissions; its unique request ID prevents duplicate inserts on retries. This migration has not been applied. Saved requests appear under admin Orders; outbound email notifications are not configured. Existing product records do not generally include SKU metadata, so the quote includes manufacturer part numbers only for the two reviewed bindings and uses catalog IDs for other products.
+
+The cart submits product IDs and quantities to the server, which resolves prices from the product catalog. Checkout requires explicit server-side price, checkout, shipping and fulfillment verification flags as well as `non_taxable` status. The present product schema and admin workflow do not yet provide these flags, so existing products remain quote-only; configuring a Stripe key does not enable their checkout. Shipping options, tax configuration, a durable verification workflow, reliable order reconciliation and a real Stripe test transaction remain outstanding. Do not treat this branch as ready for production checkout.
+
+## CRC reference drafts
+
+The supplied CRC price list is dated January 15, 2026. Review `supabase/migrations/011_crc_reference_drafts.sql` in an isolated development database to stage 16 online courses and 26 physical materials as disabled quote-only records. Reference retail prices are not approved selling prices. Training Partner costs are not embedded in the repository and still require a private, administrator-only import workflow. Certification fees are not product listings. The PDF spells the WHMIS listing as `WHIMIS 2015`; verify the course name before publication.
+
+CRC's document describes supplier material shipping as 10% of pre-tax order value, minimum $15 and maximum $100, with up to 12 business days for major urban centres and 15 for rural centres. These are supplier terms, not customer shipping charges. Online enrollment must be arranged by an administrator through My Red Cross Course Management; access and certificates are not issued automatically. The source states online courses are non-refundable, subject to applicable law.
+
+## Development checks
+
+Run `npm run build`, `node scripts/test-local-preview.js`, `node scripts/test-commerce-safety.js` and `node scripts/test-expansion.js`. Local preview mode does not isolate a configured Supabase project: use development credentials when testing operations that write data, such as admin edits or quote submissions.
 
 ## Tax note
 
 Product records include `tax_behavior`: `taxable`, `non_taxable`, or `confirm_manually`. Stripe Tax is not enabled automatically. Tax handling should be reviewed before full e-commerce launch.
+
+## Priced SOS catalogue
+
+Codex migrations 005–011 stay as they are. They do not change `handle_new_user` or profile policies. The public priced catalogue is `config/sos-catalogue.json` (no owner cost). Local preview merges it onto the quote catalogue. Displayed AED prices are MAP, Prestan prices are Canadian MSRP/MAP, and other SOS goods use the sostor.com price. Owner cost stays in the gitignored `data/internal` file and in the administrator supplier-review screen.
+
+`config/shipping.js` is the only shipping rule file. The active rule is a placeholder flat $19.99 CAD per order. `config/installation.js` offers free AED installation for Southwestern Ontario postal codes starting with N. Kit installation is off.
+
+Set `ENABLE_STRIPE_SANDBOX_CHECKOUT=true` and `STRIPE_SECRET_KEY=sk_test_...` before test checkout. Live keys are refused. Order email is sent only after a signature-verified `checkout.session.completed` webhook, to `ORDER_NOTIFICATION_EMAIL` or `josh@soteriaservices.net`.
 
 ## Deploy to Vercel
 

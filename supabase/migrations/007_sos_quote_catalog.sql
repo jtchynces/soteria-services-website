@@ -1,0 +1,20 @@
+-- Reviewed SOS catalog identities; prices, availability and shipping require a quote.
+-- Apply only after review. Never overwrite existing products.
+insert into public.products (id, category, name, description, amount, currency, tax_behavior, inventory_status, image_url, mode, enabled) values
+  ('sos-prestan-adult-2000', 'PRESTAN Equipment', 'PRESTAN Professional Adult Series 2000 CPR Training Manikin', 'Adult CPR training manikin from the PRESTAN Professional Series 2000.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-adult-2000-four', 'PRESTAN Equipment', 'PRESTAN Professional Adult Series 2000 CPR Training Manikin 4-Pack', 'Four-pack of PRESTAN Professional Adult Series 2000 CPR training manikins.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-child-monitor', 'PRESTAN Equipment', 'PRESTAN Child CPR-AED Manikin with CPR Monitor', 'Child CPR training manikin with a CPR monitor.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-infant-2000', 'PRESTAN Equipment', 'PRESTAN Professional Infant Series 2000 Manikin', 'Infant CPR training manikin from the PRESTAN Professional Series 2000.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-family-pack', 'PRESTAN Equipment', 'PRESTAN Professional Family Pack', 'A CPR training manikin collection with adult, child and infant manikins.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-ultratrainer-four', 'PRESTAN Equipment', 'PRESTAN AED UltraTrainer 4-Pack', 'Four-pack of PRESTAN AED training devices.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-adult-lungs', 'PRESTAN Equipment', 'PRESTAN Adult Face-Shield Lung Bags, 50', 'A 50-pack of face-shield lung bags for PRESTAN adult manikins.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-infant-lungs', 'PRESTAN Equipment', 'PRESTAN Infant Face-Shield Lung Bags, 50', 'A 50-pack of face-shield lung bags for PRESTAN infant manikins.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-replacement-faces', 'PRESTAN Equipment', 'Replacement Faces for PRESTAN Adult Manikin', 'Replacement faces for PRESTAN adult training manikins.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-prestan-trainer-pads', 'PRESTAN Equipment', 'PRESTAN AED Trainer Replacement Pads', 'Replacement pads for PRESTAN AED training equipment.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-zoll-aed-3', 'AED Sales', 'ZOLL AED 3', 'An AED from ZOLL. Contact Soteria for a quotation and configuration details.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-zoll-aed-plus', 'AED Sales', 'ZOLL AED Plus', 'An AED from ZOLL. Contact Soteria for a quotation and configuration details.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-defibtech-lifeline', 'AED Sales', 'Defibtech Lifeline AED', 'An AED from Defibtech. Contact Soteria for a quotation and configuration details.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-lifeline-view', 'AED Sales', 'Defibtech Lifeline View AED', 'An AED from Defibtech. Contact Soteria for a quotation and configuration details.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-lifeline-view-adult-pads', 'AED Pads & Batteries', 'Defibtech Lifeline View Adult Pads', 'Adult replacement pads for the Defibtech Lifeline View AED.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true),
+  ('sos-zoll-aed-3-battery', 'AED Pads & Batteries', 'ZOLL AED 3 Battery Pack', 'Replacement battery pack for the ZOLL AED 3.', 0, 'cad', 'confirm_manually', 'quote_required', '', 'request_quote', true)
+on conflict (id) do nothing;

@@ -1,6 +1,9 @@
 const { configHandler, inviteUserHandler } = require('../lib/auth');
+const { supplierReviewsHandler } = require('../lib/supplier');
+const { supplierImportHandler } = require('../lib/supplier-import');
 const {
   createCheckoutSession,
+  installationPreview,
   productsHandler,
   quoteRequest,
   stripeWebhook
@@ -21,11 +24,14 @@ const routes = {
   '/api/site-settings': ['site-settings', publicSettingsHandler],
   '/api/content': ['content', contentHandler],
   '/api/products': ['products', productsHandler],
+  '/api/installation-preview': ['installation-preview', installationPreview],
   '/api/admin/products': ['admin-products', upsertProductHandler],
   '/api/admin/products/archive': ['admin-products-archive', archiveProductHandler],
   '/api/admin/content': ['admin-content', adminContentHandler],
   '/api/admin/site-settings': ['admin-site-settings', updateSettingsHandler],
   '/api/admin/orders': ['admin-orders', adminOrdersHandler],
+  '/api/admin/supplier-reviews': ['admin-supplier-reviews', supplierReviewsHandler],
+  '/api/admin/supplier-import': ['admin-supplier-import', supplierImportHandler],
   '/api/create-checkout-session': ['create-checkout-session', createCheckoutSession],
   '/api/stripe-webhook': ['stripe-webhook', stripeWebhook],
   '/api/quote-request': ['quote-request', quoteRequest]

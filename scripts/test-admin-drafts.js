@@ -1,0 +1,15 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const line = fs.readFileSync('app.js', 'utf8').split(/\r?\n/).find(item => item.startsWith('function esc('));
+const context = { serverProducts:[{ id:'published', enabled:true }, { id:'draft', enabled:false }], currentProfile:{ role:'administrator' }, currentSession:{ access_token:'test' }, location:{ pathname:'/admin/products' }, Intl, URL };
+vm.createContext(context);
+vm.runInContext(line + '\nthis.visibleProducts = products;', context);
+assert.equal(context.visibleProducts().length, 2);
+context.location.pathname = '/shop-equipment';
+assert.equal(context.visibleProducts().length, 1);
+assert.equal(context.visibleProducts()[0].id, 'published');
+context.location.pathname = '/admin/products';
+context.currentProfile = null;
+assert.equal(context.visibleProducts().length, 1);
+console.log('Admin draft visibility checks passed.');

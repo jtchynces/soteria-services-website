@@ -4,6 +4,11 @@ const required = [
   'index.html',
   'styles.css',
   'app.js',
+  'catalogue-sections.js',
+  'expansion.js',
+  'supplier-admin.js',
+  'aed-catalog.js',
+  'quote-cart.js',
   'server.js',
   'robots.txt',
   'sitemap.xml',
@@ -12,6 +17,9 @@ const required = [
   'assets/favicon.svg',
   'config/aed-configurator.json',
   'lib/products.js',
+  'lib/sos-quote-catalog.js',
+  'lib/sos-first-aid-catalog.js',
+  'lib/supplier-import.js',
   'lib/pulse.js',
   'lib/commerce.js',
   'lib/auth.js',
@@ -24,11 +32,11 @@ const required = [
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error('Missing required launch file: ' + file);
 }
-for (const file of ['app.js','server.js','lib/products.js','lib/pulse.js','lib/commerce.js','api/index.js','lib/auth.js','lib/content.js']) {
+for (const file of ['app.js','catalogue-sections.js','expansion.js','supplier-admin.js','aed-catalog.js','quote-cart.js','server.js','lib/products.js','lib/sos-quote-catalog.js','lib/sos-first-aid-catalog.js','lib/pulse.js','lib/commerce.js','lib/supplier.js','lib/supplier-import.js','api/index.js','lib/auth.js','lib/content.js','lib/red-cross-online-courses.js']) {
   new vm.Script(fs.readFileSync(file, 'utf8'), { filename: file });
 }
 const apiSource = fs.readFileSync('api/index.js', 'utf8');
-for (const route of ['/api/auth-config','/api/invite-user','/api/site-settings','/api/content','/api/products','/api/admin/products','/api/admin/products/archive','/api/admin/content','/api/admin/site-settings','/api/admin/orders','/api/create-checkout-session','/api/stripe-webhook','/api/quote-request']) {
+for (const route of ['/api/auth-config','/api/invite-user','/api/site-settings','/api/content','/api/products','/api/admin/products','/api/admin/products/archive','/api/admin/content','/api/admin/site-settings','/api/admin/orders','/api/admin/supplier-import','/api/create-checkout-session','/api/stripe-webhook','/api/quote-request']) {
   if (!apiSource.includes(route)) throw new Error(`API dispatcher missing route ${route}.`);
 }
 const appSource = fs.readFileSync('app.js', 'utf8');
