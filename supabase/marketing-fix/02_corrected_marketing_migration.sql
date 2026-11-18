@@ -44,9 +44,8 @@ where p.id is null
   and p.email is not null
   and lower(p.email) = lower(u.email);
 
-update public.profiles
-set role = 'editor'
-where role is null or role not in ('administrator', 'editor');
+-- Do not assign editor to existing rows. Pending User and any other
+-- non-editor role must stay unchanged when this file is re-run.
 
 create unique index if not exists profiles_id_uidx on public.profiles(id) where id is not null;
 create unique index if not exists profiles_email_uidx on public.profiles(lower(email)) where email is not null;
@@ -313,35 +312,12 @@ create trigger orders_touch_marketing_updated_at before update on public.orders 
 drop trigger if exists admin_profiles_touch_marketing_updated_at on public.admin_profiles;
 create trigger admin_profiles_touch_marketing_updated_at before update on public.admin_profiles for each row execute function public.touch_marketing_updated_at();
 
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  insert into public.profiles (id, email, full_name, role)
-  values (
-    new.id,
-    lower(coalesce(new.email, '')),
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
-    case
-      when new.raw_user_meta_data->>'role' in ('administrator', 'editor') then new.raw_user_meta_data->>'role'
-      else 'editor'
-    end
-  )
-  on conflict (id) do update set
-    email = excluded.email,
-    full_name = coalesce(nullif(excluded.full_name, ''), public.profiles.full_name),
-    role = excluded.role;
-  return new;
-end;
-$$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
+-- handle_new_user and on_auth_user_created live in the shared Pulse script
+-- supabase_pending_signup_fix.sql (soteria-pulse PR #3). That function
+-- creates role 'Pending User' and status 'Pending', never reads
+-- raw_user_meta_data.role, and does not overwrite role on conflict.
+-- Do not recreate the function or trigger here. Re-running this file must
+-- not drop or replace the trigger that script installed.
 
 alter table public.roles enable row level security;
 alter table public.profiles enable row level security;
@@ -357,6 +333,7 @@ drop policy if exists "marketing_roles_read" on public.roles;
 drop policy if exists "marketing_profiles_self_read" on public.profiles;
 drop policy if exists "marketing_profiles_admin_read" on public.profiles;
 drop policy if exists "marketing_profiles_admin_write" on public.profiles;
+drop policy if exists "Users can update own basic profile" on public.profiles;
 drop policy if exists "marketing_admin_profiles_self_or_admin_read" on public.admin_profiles;
 drop policy if exists "marketing_admin_profiles_admin_write" on public.admin_profiles;
 drop policy if exists "marketing_site_settings_public_read" on public.site_settings;

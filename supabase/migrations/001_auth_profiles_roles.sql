@@ -60,35 +60,12 @@ as $$
   select coalesce(public.current_user_role() = 'administrator', false);
 $$;
 
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  insert into public.profiles (id, email, full_name, role)
-  values (
-    new.id,
-    lower(coalesce(new.email, '')),
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
-    case
-      when new.raw_user_meta_data->>'role' in ('administrator', 'editor') then new.raw_user_meta_data->>'role'
-      else 'editor'
-    end
-  )
-  on conflict (id) do update set
-    email = excluded.email,
-    full_name = coalesce(nullif(excluded.full_name, ''), public.profiles.full_name),
-    role = excluded.role;
-  return new;
-end;
-$$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-after insert on auth.users
-for each row execute function public.handle_new_user();
+-- handle_new_user and on_auth_user_created live in the shared Pulse script
+-- supabase_pending_signup_fix.sql (soteria-pulse PR #3). That function
+-- creates role 'Pending User' and status 'Pending', never reads
+-- raw_user_meta_data.role, and does not overwrite role on conflict.
+-- Do not recreate the function or trigger here. Re-running this file must
+-- not put the old metadata-role trigger back.
 
 alter table public.roles enable row level security;
 alter table public.profiles enable row level security;
@@ -118,12 +95,10 @@ for select
 to authenticated
 using (public.is_admin());
 
-create policy "Users can update own basic profile"
-on public.profiles
-for update
-to authenticated
-using (id = auth.uid())
-with check (id = auth.uid() and role = public.current_user_role());
+-- "Users can update own basic profile" is dropped above and must not be
+-- recreated. It let a signed-in user update their own row without locking
+-- status. Pulse keeps a restrictive policy that only an administrator can
+-- change role or status.
 
 create policy "Administrators can manage profiles"
 on public.profiles
