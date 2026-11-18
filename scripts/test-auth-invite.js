@@ -175,6 +175,8 @@ function testMigrationsDoNotRestorePrivilegedSignup() {
     'supabase/migrations/001_auth_profiles_roles.sql',
     'supabase/marketing-fix/02_corrected_marketing_migration.sql'
   ];
+  const profilesUserId = 'alter table public.profiles add column if not exists user_id uuid references auth.users(id) on delete cascade';
+  const adminUserId = 'alter table public.admin_profiles add column if not exists user_id uuid references auth.users(id) on delete cascade';
   for (const file of files) {
     const sql = executableSql(file);
     assert.ok(!/create\s+(or\s+replace\s+)?function\s+public\.handle_new_user/i.test(sql), file + ' recreates handle_new_user');
@@ -183,9 +185,20 @@ function testMigrationsDoNotRestorePrivilegedSignup() {
     assert.ok(!/raw_user_meta_data\s*->>\s*'role'/i.test(sql), file + ' reads metadata role');
     assert.ok(!/excluded\.role/i.test(sql), file + ' writes excluded.role');
     assert.ok(!/set\s+role\s*=\s*'editor'/i.test(sql), file + ' sets role to editor');
-    const source = fs.readFileSync(path.join(root, file), 'utf8');
-    assert.ok(source.includes("'Pending User'"), file + ' does not name Pending User');
-    assert.ok(source.includes("'Pending'"), file + ' does not name Pending status');
+    assert.ok(!/default\s+'editor'/i.test(sql), file + ' still defaults a column to editor');
+    assert.ok(sql.includes(profilesUserId), file + ' is missing the profiles user_id column');
+    assert.ok(sql.includes(adminUserId), file + ' is missing the admin_profiles user_id column');
+    assert.ok(/create unique index if not exists profiles_user_id_key on public\.profiles\(user_id\)/i.test(sql), file + ' is missing profiles_user_id_key');
+    assert.ok(/create unique index if not exists admin_profiles_user_id_key on public\.admin_profiles\(user_id\)/i.test(sql), file + ' is missing admin_profiles_user_id_key');
+    assert.ok(sql.includes("default 'Pending User'"), file + ' does not default profiles.role to Pending User');
+    assert.ok(sql.includes("default 'Pending'"), file + ' does not default profiles.status to Pending');
+    assert.ok(sql.includes("default 'pending'") || sql.includes("default ''pending''"), file + ' does not default admin_profiles to pending');
+    assert.ok(/contype = 'c'/.test(sql), file + ' does not check role constraints');
+    assert.ok(sql.includes("'Pending User'") && sql.includes("'pending'"), file + ' does not allow the pending role values');
+    const updates = sql.match(/update\s+public\.(profiles|admin_profiles)\b[\s\S]*?;/gi) || [];
+    for (const statement of updates) {
+      assert.ok(!/\b(role|status)\s*=/i.test(statement), file + ' updates an existing role or status');
+    }
     assert.ok(/drop\s+policy\s+if\s+exists\s+"Users can update own basic profile"/i.test(sql), file + ' does not drop the self-update policy');
     assert.ok(!/create\s+policy\s+"Users can update own basic profile"/i.test(sql), file + ' recreates the self-update policy');
   }
